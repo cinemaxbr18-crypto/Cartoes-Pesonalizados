@@ -3,185 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Novidades & Guia - Criador de Cartões</title>
-    
+    <title>Novidades - Criador de Cartões</title>
     <style>
-        /* --- IMPORTAÇÃO DE FONTES (Mesma do Index) --- */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;700&display=swap');
-
-        /* --- VARIÁVEIS (Design Clean) --- */
-        :root {
-            --cor-app-fundo: #F2F4F8;
-            --cor-card: #FFFFFF;
-            --cor-destaque: #6C5CE7;
-            --cor-texto: #2D3436;
-            --cor-texto-leve: #636E72;
-            --sombra: 0 10px 30px rgba(0,0,0,0.08);
-            --radius: 16px;
-        }
-
+        :root { --cor-app-fundo: #F2F4F8; --cor-card: #FFFFFF; --cor-destaque: #6C5CE7; --cor-texto: #2D3436; --radius: 16px; }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--cor-app-fundo);
-            color: var(--cor-texto);
-            margin: 0;
-            padding: 20px;
-            line-height: 1.6;
-            display: flex;
-            justify-content: center;
+            font-family: 'Inter', sans-serif; background-color: var(--cor-app-fundo);
+            color: var(--cor-texto); margin: 0; padding: 20px; display: flex; justify-content: center;
         }
-
         .container {
-            max-width: 800px;
-            width: 100%;
-            background: var(--cor-card);
-            padding: 40px;
-            border-radius: var(--radius);
-            box-shadow: var(--sombra);
+            max-width: 800px; width: 100%; background: var(--cor-card); padding: 40px;
+            border-radius: var(--radius); box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
-
-        /* Cabeçalho */
-        header {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        h1 {
-            font-family: 'Poppins', sans-serif;
-            color: var(--cor-destaque);
-            font-size: 2rem;
-            margin: 0 0 10px 0;
-        }
-
-        .subtitle {
-            color: var(--cor-texto-leve);
-            font-size: 0.95rem;
-        }
-
-        /* Lista de Novidades */
-        h2 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.4rem;
-            margin-top: 30px;
-            color: #2d3436;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .feature-list {
-            list-style: none;
-            padding: 0;
-            display: grid;
-            gap: 15px;
-        }
-
+        h1 { font-family: 'Poppins', sans-serif; color: var(--cor-destaque); margin-bottom: 5px; }
         .feature-item {
-            background: #fdfdfd;
-            border: 1px solid #f1f2f6;
-            padding: 15px 20px;
-            border-radius: 12px;
-            border-left: 4px solid var(--cor-destaque);
-            transition: transform 0.2s;
+            background: #fdfdfd; border: 1px solid #f1f2f6; padding: 15px 20px;
+            border-radius: 12px; border-left: 4px solid var(--cor-destaque); margin-bottom: 15px;
         }
-        .feature-item:hover {
-            transform: translateX(5px);
-            background: #fff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .feature-title {
-            font-weight: 700;
-            color: var(--cor-destaque);
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        /* Guia de Ajuda */
-        .guide-box {
-            background: #fff3cd;
-            border: 1px solid #ffeeba;
-            color: #856404;
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 30px;
-        }
-        .guide-title { font-weight: 700; margin-bottom: 10px; display: block; }
-
-        /* Botão Voltar */
+        .feature-title { font-weight: 700; color: var(--cor-destaque); display: block; }
         .btn-back {
-            display: block;
-            width: 100%;
-            text-align: center;
-            background: var(--cor-destaque);
-            color: white;
-            text-decoration: none;
-            padding: 15px;
-            border-radius: 12px;
-            font-weight: 600;
-            margin-top: 40px;
-            transition: opacity 0.2s, transform 0.1s;
-        }
-        .btn-back:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-        
-        /* Responsivo */
-        @media (max-width: 600px) {
-            .container { padding: 20px; }
-            h1 { font-size: 1.5rem; }
+            display: block; width: 100%; text-align: center; background: var(--cor-destaque);
+            color: white; text-decoration: none; padding: 15px; border-radius: 12px;
+            font-weight: 600; margin-top: 40px;
         }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <header>
-            <h1>🎉 Novidades Versão 12</h1>
-            <div class="subtitle">O Criador de Cartões está mais poderoso do que nunca!</div>
-        </header>
-
-        <h2>✨ O que há de Novo?</h2>
-        <ul class="feature-list">
-            <li class="feature-item">
-                <span class="feature-title">🎤 Gravação de Voz</span>
-                Agora você pode gravar sua própria mensagem de voz diretamente no navegador e enviá-la junto com o cartão!
-            </li>
-            <li class="feature-item">
-                <span class="feature-title">📂 Upload de Áudio</span>
-                Tem uma música MP3 no seu celular ou computador? Agora você pode enviá-la para tocar no cartão.
-            </li>
-            <li class="feature-item">
-                <span class="feature-title">📱 Interface em Abas</span>
-                Organizamos tudo! Navegue facilmente entre "Texto", "Mídia", "Áudio" e "Estilo" sem se perder em uma tela longa.
-            </li>
-            <li class="feature-item">
-                <span class="feature-title">🖼️ Fotos Maximizadas</span>
-                O carrossel de fotos agora é enorme e vertical, perfeito para mostrar fotos de celular sem cortar a cabeça de ninguém!
-            </li>
-            <li class="feature-item">
-                <span class="feature-title">🎨 Estilo Clean & Pro</span>
-                Um visual moderno, limpo e profissional que funciona perfeitamente em celulares, tablets e PCs.
-            </li>
-        </ul>
-
-        <div class="guide-box">
-            <span class="guide-title">⚠️ Ajuda com Fotos (Google Drive)</span>
-            <p style="margin:0;">
-                Se suas fotos do Google Drive não aparecem:
-                <br>1. Certifique-se de que o link está configurado como <strong>"Qualquer pessoa com o link"</strong>.
-                <br>2. Copie o link de compartilhamento padrão.
-                <br>3. Cole no nosso gerador. <strong>Nós convertemos automaticamente</strong> para você!
-            </p>
+        <h1>🎉 Novidades Incríveis!</h1>
+        
+        <div class="feature-item">
+            <span class="feature-title">🎵 Músicas de até 6 Minutos!</span>
+            Implementamos um sistema inteligente que permite enviar arquivos MP3 maiores (até 6MB). O app divide o arquivo automaticamente para garantir alta qualidade.
         </div>
 
-        <a href="index.html" class="btn-back">
-            &larr; Voltar para o Criador
-        </a>
-    </div>
+        <div class="feature-item">
+            <span class="feature-title">❓ Nova Aba de Ajuda</span>
+            Adicionamos uma aba dedicada "Ajuda" no editor com links diretos para tutoriais de imagens.
+        </div>
 
+        <a href="index.html" class="btn-back">&larr; Voltar para o Editor</a>
+    </div>
 </body>
 </html>
