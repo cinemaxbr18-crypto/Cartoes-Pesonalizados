@@ -514,6 +514,14 @@
                 const img = document.createElement('img');
                 img.src = url.trim();
                 img.className = 'galeria-imagem';
+                
+                // NOVO: Tratamento de erro de carregamento (muito útil para links do Drive que falham)
+                img.onerror = function() {
+                    console.error(`Falha ao carregar a imagem, verifique as permissões de compartilhamento do Drive: ${this.src}`);
+                    // Opcional: Se quiser, pode definir uma imagem padrão de erro aqui
+                    // this.src = 'https://placehold.co/150x150/ff0000/ffffff?text=ERRO';
+                };
+                
                 // Define a primeira imagem como ativa
                 if (index === 0) {
                     img.classList.add('active');
