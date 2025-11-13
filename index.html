@@ -381,19 +381,43 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        let db, auth, isFirebaseReady = false;
-        const APP_ID = window.__app_id || 'default';
+        let db, auth;
+        let isFirebaseReady = false;
 
-        try {
-            const firebaseConfig = JSON.parse(window.__firebase_config || '{}');
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            isFirebaseReady = true;
-            signInAnonymously(auth).catch(e => console.error("Auth Error:", e));
-        } catch (e) { console.warn("Firebase error", e); }
+        // Inicialização SEGURA do Firebase
+        async function initFirebase() {
+            if (isFirebaseReady) return true;
+            
+            try {
+                const firebaseConfig = JSON.parse(window.__firebase_config || '{}');
+                if (!firebaseConfig.apiKey) throw new Error("Configuração ausente");
+
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Regra 3: Autenticação PRIMEIRO
+                if (window.__initial_auth_token) {
+                    await signInWithCustomToken(auth, window.__initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                isFirebaseReady = true;
+                console.log("Firebase pronto e autenticado.");
+                return true;
+            } catch (e) {
+                console.error("Erro crítico Firebase:", e);
+                return false;
+            }
+        }
+
+        // Inicia silenciosamente ao carregar
+        initFirebase();
+
+        const APP_ID = typeof window.__app_id !== 'undefined' ? window.__app_id : 'default';
 
         window.saveAndGenerate = async function() {
             const btn = document.getElementById('btnGenerate');
@@ -401,13 +425,22 @@
             const progBar = document.getElementById('uploadBar');
             const progText = document.getElementById('uploadText');
 
-            btn.textContent = "⏳ Processando...";
+            btn.textContent = "⏳ Conectando...";
             btn.classList.add('btn-loading');
             progContainer.style.display = 'none';
 
+            // Tenta garantir conexão antes de tudo
+            const connected = await initFirebase();
+            if (!connected || !auth.currentUser) {
+                window.showToast("Erro de conexão com o servidor. Tente novamente.");
+                btn.textContent = "✨ GERAR CARTÃO AGORA";
+                btn.classList.remove('btn-loading');
+                return;
+            }
+
+            btn.textContent = "⏳ Salvando...";
             const audioB64 = document.getElementById('audioBase64Data').value;
             
-            // --- DADOS BÁSICOS ---
             let cardData = {
                 n: document.getElementById('inputNome').value,
                 e: document.getElementById('inputEvento').value,
@@ -424,23 +457,20 @@
                 c1: document.getElementById('pisca1').value,
                 c2: document.getElementById('pisca2').value,
                 au: document.getElementById('inputUrlAudio').value,
-                timestamp: new Date()
+                timestamp: new Date(),
+                uid: auth.currentUser.uid // Útil para regras de segurança
             };
 
             try {
-                if (!isFirebaseReady) throw new Error("Serviço indisponível");
-
-                // --- LÓGICA DE UPLOAD DE ÁUDIO (CHUNKING) ---
-                if (audioB64 && audioB64.length > 500000) { // Se maior que 500KB
+                // --- UPLOAD COM CHUNKING ---
+                if (audioB64 && audioB64.length > 500000) { 
                     progContainer.style.display = 'block';
                     progText.textContent = "Dividindo arquivo de áudio...";
                     
-                    // Primeiro cria o doc do cartão (vazio de áudio por enquanto)
                     const docRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'cards'), { ...cardData, hasChunks: true });
                     const cardId = docRef.id;
 
-                    // Divide e Salva Chunks
-                    const CHUNK_SIZE = 800000; // ~800KB (Seguro para Firestore 1MB limit)
+                    const CHUNK_SIZE = 800000; 
                     const totalChunks = Math.ceil(audioB64.length / CHUNK_SIZE);
                     
                     for (let i = 0; i < totalChunks; i++) {
@@ -451,34 +481,29 @@
                             data: chunk
                         });
                         
-                        // Atualiza UI
                         const percent = Math.round(((i + 1) / totalChunks) * 100);
                         progBar.style.width = percent + '%';
                         progText.textContent = `Enviando parte ${i+1} de ${totalChunks}...`;
                     }
 
-                    // Link final
                     const shortLink = window.location.origin + window.location.pathname + '?id=' + cardId;
                     document.getElementById('finalLink').value = shortLink;
 
                 } else {
-                    // Arquivo pequeno ou sem áudio, salva direto
                     if (audioB64) cardData.a64 = audioB64;
-                    
                     const docRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'cards'), cardData);
                     const shortLink = window.location.origin + window.location.pathname + '?id=' + docRef.id;
                     document.getElementById('finalLink').value = shortLink;
                 }
 
-                // Sucesso
                 progContainer.style.display = 'none';
                 document.getElementById('shareArea').style.display = 'block';
                 document.getElementById('shareArea').scrollIntoView({behavior: "smooth"});
                 window.showToast("Link Gerado com Sucesso! 🎉");
 
             } catch (error) {
-                console.error("Erro:", error);
-                window.showToast("Erro ao gerar. Verifique sua conexão.");
+                console.error("Erro ao salvar:", error);
+                window.showToast("Erro ao gerar link. Verifique sua internet.");
             } finally {
                 btn.textContent = "✨ GERAR CARTÃO AGORA";
                 btn.classList.remove('btn-loading');
@@ -486,7 +511,9 @@
         }
 
         window.loadCardData = async function(cardId) {
-            if (!isFirebaseReady) return;
+            const connected = await initFirebase();
+            if (!connected) return;
+
             try {
                 window.showToast("Abrindo cartão mágico...");
                 const docRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'cards', cardId);
@@ -496,7 +523,6 @@
                     const data = docSnap.data();
                     applyDataToFields(data);
                     
-                    // --- RECUPERAÇÃO DE ÁUDIO (CHUNKS) ---
                     if (data.hasChunks) {
                         window.showToast("Carregando música de alta qualidade...");
                         const q = query(
@@ -505,11 +531,8 @@
                         );
                         const querySnapshot = await getDocs(q);
                         
-                        // Ordena e monta
                         let chunks = [];
-                        querySnapshot.forEach((doc) => {
-                            chunks.push(doc.data());
-                        });
+                        querySnapshot.forEach((doc) => { chunks.push(doc.data()); });
                         chunks.sort((a, b) => a.index - b.index);
                         
                         const fullAudio = chunks.map(c => c.data).join('');
@@ -564,7 +587,8 @@
             const p = new URLSearchParams(window.location.search);
             if(p.has('id')) {
                 setupViewMode();
-                setTimeout(() => { if(window.loadCardData) window.loadCardData(p.get('id')); }, 800);
+                // Pequeno delay para garantir que o módulo carregou as funções
+                setTimeout(() => { if(window.loadCardData) window.loadCardData(p.get('id')); }, 1000);
             }
         };
 
@@ -715,7 +739,6 @@
         window.handleFileUpload = function(input) {
             const file = input.files[0];
             if(!file) return;
-            // Limite aumentado para 6MB para suportar 6min
             if(file.size > 6500000) { 
                 alert("Arquivo muito grande! O limite é aprox 6MB.");
                 input.value = "";
