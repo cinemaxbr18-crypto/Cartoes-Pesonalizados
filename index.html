@@ -247,42 +247,34 @@
                         <label>Imagem de Fundo do Cartão (URL):</label>
                         <input type="text" class="styled-input" id="inputBgCard" placeholder="http://..." oninput="updateCard()">
                     </div>
+                    <!-- NOVO INPUT: Controle de Autoplay (Automação de Carrossel) -->
+                    <div class="input-group">
+                        <label>Autoplay do Carrossel (ms):</label>
+                        <input type="number" class="styled-input" id="inputAutoplayDelay" value="3000" min="1000" oninput="updateCard()">
+                        <small style="color:#636E72; display:block; margin-top:5px;">Tempo em milissegundos para trocar a foto (3000ms = 3s).</small>
+                    </div>
                     <button class="action-btn btn-primary" onclick="openTab('tabAudio')">Próximo: Áudio &rarr;</button>
                 </div>
 
                 <!-- ÁUDIO -->
                 <div id="tabAudio" class="tab-content">
-                    <label style="display:block; margin-bottom:10px; font-weight:600;">Fonte do Áudio (Até 6min):</label>
+                    <label style="display:block; margin-bottom:10px; font-weight:600;">Fonte do Áudio (URL):</label>
                     
                     <div class="audio-options">
-                        <button class="audio-opt-btn active" onclick="showAudioInput('file')">📂 Arquivo MP3</button>
-                        <button class="audio-opt-btn" onclick="showAudioInput('mic')">🎤 Gravar Voz</button>
-                        <button class="audio-opt-btn" onclick="showAudioInput('url')">🔗 Link</button>
+                        <!-- ÚNICA OPÇÃO MANTIDA -->
+                        <button class="audio-opt-btn active" onclick="showAudioInput('url')">🔗 Link Direto de Áudio</button>
                     </div>
 
-                    <!-- Input Arquivo (Suporte a Chunking) -->
-                    <div id="audioFileArea" class="audio-input-container visible">
-                        <label>Selecione MP3 (Suporta arquivos maiores!):</label>
-                        <input type="file" id="inputFileAudio" accept="audio/*" class="styled-input" onchange="handleFileUpload(this)">
-                        <small style="color:#27ae60; display:block; margin-top:5px;">Suporte a Alta Qualidade (até ~6MB)</small>
-                    </div>
-
-                    <!-- Input Gravação -->
-                    <div id="audioMicArea" class="audio-input-container">
-                        <label>Gravar Mensagem:</label>
-                        <div class="record-controls">
-                            <button class="rec-btn rec-start" id="btnRecStart" onclick="startRec()">●</button>
-                            <button class="rec-btn rec-stop" id="btnRecStop" onclick="stopRec()" disabled>■</button>
-                        </div>
-                        <div class="rec-status" id="recStatus">Toque na bolinha para gravar</div>
-                    </div>
-
-                    <!-- Input URL -->
-                    <div id="audioUrlArea" class="audio-input-container">
-                        <label>Link direto de Áudio:</label>
+                    <!-- Input URL (AGORA O ÚNICO ATIVO) -->
+                    <div id="audioUrlArea" class="audio-input-container visible">
+                        <label>Link direto de Áudio (MP3/WAV):</label>
                         <input type="text" class="styled-input" id="inputUrlAudio" placeholder="http://site.com/musica.mp3" oninput="updateCard()">
                     </div>
-
+                    
+                    <!-- PLACEHOLDERS VAZIOS -->
+                    <div id="audioFileArea" class="audio-input-container"></div>
+                    <div id="audioMicArea" class="audio-input-container"></div>
+                    
                     <input type="hidden" id="audioBase64Data">
                     <button class="action-btn btn-primary" style="margin-top:20px;" onclick="openTab('tabEstilo')">Próximo: Estilo &rarr;</button>
                 </div>
@@ -337,8 +329,8 @@
                     </div>
 
                     <div class="help-box" style="background: #e8f6ef; border-color: #a3e4d7;">
-                        <strong>🎵 Sobre Áudio Longo</strong>
-                        <p>Agora você pode colocar músicas de até <strong>6 minutos</strong>! O sistema divide o arquivo automaticamente para caber no cartão. Basta selecionar "Arquivo MP3" na aba Áudio.</p>
+                        <strong>🔗 Link Curto e Áudio</strong>
+                        <p>O link final é extremamente curto (apenas um ID), o que garante o envio sem problemas em qualquer plataforma. Use apenas links diretos de áudio (MP3 ou WAV).</p>
                     </div>
                 </div>
 
@@ -379,6 +371,7 @@
     <style id="dynamicStyles"></style>
 
     <script type="module">
+        // IMPORTAÇÕES FIREBASE (MANTIDAS)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -419,12 +412,11 @@
 
         const APP_ID = typeof window.__app_id !== 'undefined' ? window.__app_id : 'default';
 
+        // MANTIDO: Função de salvar no Firestore (Link Curto Garantido)
         window.saveAndGenerate = async function() {
             const btn = document.getElementById('btnGenerate');
             const progContainer = document.getElementById('uploadProgress');
-            const progBar = document.getElementById('uploadBar');
-            const progText = document.getElementById('uploadText');
-
+            
             btn.textContent = "⏳ Conectando...";
             btn.classList.add('btn-loading');
             progContainer.style.display = 'none';
@@ -439,7 +431,6 @@
             }
 
             btn.textContent = "⏳ Salvando...";
-            const audioB64 = document.getElementById('audioBase64Data').value;
             
             let cardData = {
                 n: document.getElementById('inputNome').value,
@@ -457,46 +448,17 @@
                 c1: document.getElementById('pisca1').value,
                 c2: document.getElementById('pisca2').value,
                 au: document.getElementById('inputUrlAudio').value,
+                autoplay: document.getElementById('inputAutoplayDelay').value,
                 timestamp: new Date(),
-                uid: auth.currentUser.uid // Útil para regras de segurança
+                uid: auth.currentUser.uid 
             };
 
             try {
-                // --- UPLOAD COM CHUNKING ---
-                if (audioB64 && audioB64.length > 500000) { 
-                    progContainer.style.display = 'block';
-                    progText.textContent = "Dividindo arquivo de áudio...";
-                    
-                    const docRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'cards'), { ...cardData, hasChunks: true });
-                    const cardId = docRef.id;
+                // Geração de link curto: Apenas o ID do documento é usado no URL
+                const docRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'cards'), cardData);
+                const shortLink = window.location.origin + window.location.pathname + '?id=' + docRef.id;
+                document.getElementById('finalLink').value = shortLink;
 
-                    const CHUNK_SIZE = 800000; 
-                    const totalChunks = Math.ceil(audioB64.length / CHUNK_SIZE);
-                    
-                    for (let i = 0; i < totalChunks; i++) {
-                        const chunk = audioB64.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
-                        await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'audio_chunks'), {
-                            cardId: cardId,
-                            index: i,
-                            data: chunk
-                        });
-                        
-                        const percent = Math.round(((i + 1) / totalChunks) * 100);
-                        progBar.style.width = percent + '%';
-                        progText.textContent = `Enviando parte ${i+1} de ${totalChunks}...`;
-                    }
-
-                    const shortLink = window.location.origin + window.location.pathname + '?id=' + cardId;
-                    document.getElementById('finalLink').value = shortLink;
-
-                } else {
-                    if (audioB64) cardData.a64 = audioB64;
-                    const docRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'cards'), cardData);
-                    const shortLink = window.location.origin + window.location.pathname + '?id=' + docRef.id;
-                    document.getElementById('finalLink').value = shortLink;
-                }
-
-                progContainer.style.display = 'none';
                 document.getElementById('shareArea').style.display = 'block';
                 document.getElementById('shareArea').scrollIntoView({behavior: "smooth"});
                 window.showToast("Link Gerado com Sucesso! 🎉");
@@ -510,6 +472,7 @@
             }
         }
 
+        // MANTIDO: Função de carregar dados 
         window.loadCardData = async function(cardId) {
             const connected = await initFirebase();
             if (!connected) return;
@@ -523,27 +486,13 @@
                     const data = docSnap.data();
                     applyDataToFields(data);
                     
-                    if (data.hasChunks) {
-                        window.showToast("Carregando música de alta qualidade...");
-                        const q = query(
-                            collection(db, 'artifacts', APP_ID, 'public', 'data', 'audio_chunks'),
-                            where("cardId", "==", cardId)
-                        );
-                        const querySnapshot = await getDocs(q);
-                        
-                        let chunks = [];
-                        querySnapshot.forEach((doc) => { chunks.push(doc.data()); });
-                        chunks.sort((a, b) => a.index - b.index);
-                        
-                        const fullAudio = chunks.map(c => c.data).join('');
-                        const player = document.getElementById('realAudioElement');
-                        player.src = fullAudio;
-                        document.getElementById('cardAudioPlayer').style.display = 'flex';
-                        
-                    } else if(data.a64 || data.au) {
+                    // Lógica de Áudio (Apenas URL)
+                    if(data.au) {
                          const player = document.getElementById('realAudioElement');
-                         player.src = data.a64 || data.au;
+                         player.src = data.au;
                          document.getElementById('cardAudioPlayer').style.display = 'flex';
+                    } else {
+                        document.getElementById('cardAudioPlayer').style.display = 'none';
                     }
 
                     window.updateCard();
@@ -575,12 +524,14 @@
             if(data.c2) document.getElementById('pisca2').value = data.c2;
             
             if(data.au) document.getElementById('inputUrlAudio').value = data.au;
+            if(data.autoplay) document.getElementById('inputAutoplayDelay').value = data.autoplay;
         }
     </script>
 
     <script>
         // --- LÓGICA COMUM (UI) ---
-        let mediaRecorder, audioChunks = [];
+        // Funções e variáveis de gravação/upload completamente REMOVIDAS ou esvaziadas
+        let mediaRecorder = null, audioChunks = []; 
 
         window.onload = () => {
             setDefaultDate();
@@ -589,6 +540,10 @@
                 setupViewMode();
                 // Pequeno delay para garantir que o módulo carregou as funções
                 setTimeout(() => { if(window.loadCardData) window.loadCardData(p.get('id')); }, 1000);
+            } else {
+                // Ativa a aba 'url' e chama updateCard para o carrossel/visualização
+                showAudioInput('url'); 
+                window.updateCard(); 
             }
         };
 
@@ -617,18 +572,26 @@
             });
         }
 
+        // FUNÇÃO SIMPLIFICADA: window.showAudioInput (Agora só ativa a aba 'url')
         window.showAudioInput = function(type) {
             document.querySelectorAll('.audio-input-container').forEach(el => el.classList.remove('visible'));
             document.querySelectorAll('.audio-opt-btn').forEach(el => el.classList.remove('active'));
-            if(type === 'file') document.getElementById('audioFileArea').classList.add('visible');
-            else if (type === 'mic') document.getElementById('audioMicArea').classList.add('visible');
-            else document.getElementById('audioUrlArea').classList.add('visible');
-            event.target.classList.add('active');
+            
+            document.getElementById('audioUrlArea').classList.add('visible');
+            
+            // Ativa o botão correspondente ao link (único que resta)
+            const urlButton = document.querySelector('.audio-options button');
+            if (urlButton) urlButton.classList.add('active');
         }
 
+        // FUNÇÃO playAudio (MANTIDA para o player no preview)
         window.playAudio = function() {
             const player = document.getElementById('realAudioElement');
-            player.play().catch(e => showToast("Clique na página para permitir áudio"));
+            if (player.src && player.src.length > 5) {
+                player.play().catch(e => window.showToast("Clique na página para permitir o áudio ou verifique o link."));
+            } else {
+                 window.showToast("Nenhum link de áudio válido inserido.");
+            }
         }
 
         window.updateCard = function() {
@@ -669,7 +632,20 @@
             if(piscaMode === 'borda') card.classList.add('blinking-border');
 
             updateCountdown();
-            processPhotos();
+            processPhotos(); // Chama a função que agora controla o carrossel
+            
+            // Atualiza o player de áudio
+            const audioUrl = document.getElementById('inputUrlAudio').value;
+            const playerUI = document.getElementById('cardAudioPlayer');
+            const audioElement = document.getElementById('realAudioElement');
+            
+            if (audioUrl && audioUrl.length > 5) {
+                audioElement.src = audioUrl;
+                playerUI.style.display = 'flex';
+            } else {
+                audioElement.src = '';
+                playerUI.style.display = 'none';
+            }
         }
 
         let countdownInterval;
@@ -704,100 +680,119 @@
             document.getElementById('inputFotos').value = val;
         }
 
+        // FUNÇÃO DE CARROSSEL OTIMIZADA E AUTOPLAY
         function processPhotos() {
             const raw = document.getElementById('inputFotos').value;
             const container = document.getElementById('cardGallery');
-            if(!raw.trim()) { container.style.display = 'none'; return; }
-            container.style.display = 'block';
+            const delayInput = document.getElementById('inputAutoplayDelay').value;
+            const autoplayDelay = Math.max(1000, parseInt(delayInput) || 3000); // Mínimo de 1s
+            
+            // Limpa o carrossel anterior e o intervalo
+            container.style.display = 'none';
             container.innerHTML = '';
             clearInterval(slideInterval);
+
+            // Processa URLs
             const urls = raw.split(';').map(u => u.trim()).filter(u => u.length > 5);
             const cleanUrls = urls.map(url => {
                 if(url.includes('drive.google.com')) {
                     const id = url.match(/d\/([^/]+)/) || url.match(/id=([^&]+)/);
+                    // Retorna o link direto do Drive (formato compatível)
                     if(id) return `https://drive.google.com/uc?export=view&id=${id[1]}`;
                 }
                 return url;
             });
+            
+            if(!cleanUrls.length) return; // Não faz nada se não houver URLs válidas
+
+            container.style.display = 'block';
+            let currentIdx = 0;
+
+            // Cria e insere as imagens
             cleanUrls.forEach((u, i) => {
                 const img = document.createElement('img');
                 img.src = u;
+                // Adiciona um fallback de imagem para evitar telas brancas em caso de erro de URL
+                img.onerror = () => { img.src = `https://placehold.co/400x500/cccccc/333333?text=Erro+Foto+${i+1}`; img.style.objectFit = 'cover'; };
                 img.className = i === 0 ? 'photo-img active' : 'photo-img';
                 container.appendChild(img);
             });
+
+            // Lógica de Autoplay (Looping)
             if(cleanUrls.length > 1) {
-                let idx = 0;
                 slideInterval = setInterval(() => {
-                    const imgs = document.querySelectorAll('.photo-img');
-                    imgs[idx].classList.remove('active');
-                    idx = (idx + 1) % imgs.length;
-                    imgs[idx].classList.add('active');
-                }, 3000);
+                    const imgs = document.querySelectorAll('#cardGallery .photo-img');
+                    if (imgs.length === 0) return clearInterval(slideInterval);
+
+                    imgs[currentIdx].classList.remove('active');
+                    currentIdx = (currentIdx + 1) % imgs.length; // Loop do índice
+                    imgs[currentIdx].classList.add('active');
+                }, autoplayDelay);
             }
         }
+        // FIM DA FUNÇÃO DE CARROSSEL OTIMIZADA
 
+        // FUNÇÕES DE ÁUDIO/GRAVAÇÃO REMOVIDAS (conforme solicitado), mantidas como stubs
         window.handleFileUpload = function(input) {
-            const file = input.files[0];
-            if(!file) return;
-            if(file.size > 6500000) { 
-                alert("Arquivo muito grande! O limite é aprox 6MB.");
-                input.value = "";
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('audioBase64Data').value = e.target.result;
-                showToast("Música carregada! 🎵");
-                updateCard();
-            };
-            reader.readAsDataURL(file);
+            // NOP (No Operation)
         }
 
         window.startRec = function() {
-            if (!navigator.mediaDevices) return showToast("Erro: Microfone não suportado.");
-            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-                mediaRecorder = new MediaRecorder(stream);
-                audioChunks = [];
-                mediaRecorder.start();
-                document.getElementById('btnRecStart').style.display = 'none';
-                document.getElementById('btnRecStop').disabled = false;
-                document.getElementById('recStatus').textContent = "Gravando... (Fale agora)";
-                document.getElementById('recStatus').style.color = "red";
-                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                mediaRecorder.onstop = () => {
-                    const blob = new Blob(audioChunks, { type: 'audio/mp3' });
-                    const reader = new FileReader();
-                    reader.readAsDataURL(blob);
-                    reader.onloadend = () => {
-                        document.getElementById('audioBase64Data').value = reader.result;
-                        showToast("Gravação salva!");
-                        updateCard();
-                    };
-                };
-            });
+            // NOP
         }
 
         window.stopRec = function() {
-            if(mediaRecorder) mediaRecorder.stop();
-            document.getElementById('btnRecStart').style.display = 'inline-flex';
-            document.getElementById('btnRecStop').disabled = true;
-            document.getElementById('recStatus').textContent = "Gravação finalizada.";
-            document.getElementById('recStatus').style.color = "green";
+            // NOP
         }
+
+        // FIM DAS FUNÇÕES STUB DE ÁUDIO
 
         window.copyLink = function() {
             const link = document.getElementById('finalLink');
             link.select();
             link.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(link.value);
-            showToast("Link copiado!");
+            // Uso de execCommand como fallback seguro para iFrames
+            try {
+                document.execCommand('copy');
+                window.showToast("Link copiado!");
+            } catch (err) {
+                window.showToast("Erro ao copiar o link. Tente manualmente.");
+            }
         }
+        
+        // FUNÇÃO SHARE MODIFICADA PARA MENSAGENS PERSONALIZADAS
         window.share = function(platform) {
             const link = encodeURIComponent(document.getElementById('finalLink').value);
-            const msg = encodeURIComponent(`Veja o cartão que fiz para você! ✨`);
-            if(platform === 'wa') window.open(`https://wa.me/?text=${msg}%20${link}`);
-            if(platform === 'fb') window.open(`https://www.facebook.com/sharer/sharer.php?u=${link}`);
+            const nome = document.getElementById('inputNome').value || 'alguém especial';
+            const evento = document.getElementById('inputEvento').value || 'um grande evento';
+            
+            // Tenta formatar a data, se disponível
+            let dataEvento = '';
+            const dataInput = document.getElementById('inputData').value;
+            if (dataInput) {
+                try {
+                    const dateObj = new Date(dataInput + "T00:00:00");
+                    dataEvento = dateObj.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+                } catch (e) {
+                    dataEvento = ''; // Caso a data seja inválida
+                }
+            }
+            
+            const dataMsg = dataEvento ? ` em ${dataEvento}` : '';
+            
+            // Mensagem personalizada
+            const rawMsg = `🎉 Receba um cartão de ${nome.toUpperCase()} para ${evento.toUpperCase()}${dataMsg}! Clique para ver: `;
+            const encodedMsg = encodeURIComponent(rawMsg);
+
+            if (document.getElementById('finalLink').value.includes('?id=')) {
+                if(platform === 'wa') window.open(`https://wa.me/?text=${encodedMsg}${link}`);
+                if(platform === 'fb') window.open(`https://www.facebook.com/sharer/sharer.php?quote=${encodedMsg}&u=${link}`);
+                // Note: Instagram doesn't support pre-filled text in sharer
+            } else {
+                window.showToast("Primeiro gere o cartão para ter o link final!");
+            }
         }
+        
         window.showToast = function(msg) {
             const t = document.getElementById('toast');
             t.textContent = msg;
