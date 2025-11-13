@@ -2,1360 +2,1020 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Cartão Animado</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Criador de Cartões Mágicos</title>
     
     <style>
-        /* --- FONTES EXTERNAS (Mais opções) --- */
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@700&family=Pacifico:wght@400&family=Lato:wght@400;700&family=Monoton&family=Chakra+Petch:wght@700&family=Inter:wght@400;700;800&display=swap');
+        /* --- IMPORTAÇÃO DE FONTES --- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;700&display=swap');
+        /* Fontes do Cartão */
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Playfair+Display:wght@700&family=Roboto:wght@700&family=Monoton&family=Chakra+Petch:wght@700&family=Black+Ops+One&family=VT323&display=swap');
 
-        /* O Keyframes será injetado pelo JavaScript (JS), mas precisamos de uma classe base */
-        .is-blinking {
-            animation-duration: 1.5s;
-            animation-iteration-count: infinite;
-            animation-name: color-blink-animacao; 
+        /* --- VARIÁVEIS (Visual Limpo e Fixo) --- */
+        :root {
+            --cor-app-fundo: #F2F4F8; /* Cinza azulado muito suave */
+            --cor-app-card: #FFFFFF;
+            --cor-destaque: #6C5CE7; /* Roxo Moderno */
+            --cor-destaque-hover: #5b4cc4;
+            --cor-texto: #2D3436;
+            --cor-texto-leve: #636E72;
+            --borda-suave: 1px solid #DFE6E9;
+            --sombra-flutuante: 0 10px 30px rgba(0,0,0,0.08);
+            --radius-app: 20px;
+            --radius-card: 16px;
         }
+
+        /* Reset Básico */
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         
-        /* --- ANIMAÇÕES GLOBAIS DE FUNDO --- */
-        
-        /* Animação genérica do gradiente do BODY */
-        @keyframes moveGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* Animação Pulsante para o Natal (simula pisca-pisca) */
-        @keyframes natalPulse {
-            0% { box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.5); }
-            50% { box-shadow: 0 0 30px 10px rgba(0, 255, 0, 0.7); }
-            100% { box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.5); }
-        }
-
-        /* --- ESTILOS GLOBAIS E FUNDO --- */
         body {
             font-family: 'Inter', sans-serif;
+            background-color: var(--cor-app-fundo);
+            color: var(--cor-texto);
+            margin: 0;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 20px 10px;
-            margin: 0;
-            
-            /* Variáveis e animações para o fundo do body (configuradas no JS) */
-            background-color: var(--fundo-body-cor, #f0f4f7); 
-            background-image: var(--fundo-body-gradiente, none);
-            background-size: 400% 400%; 
-            animation: var(--body-animation, moveGradient 15s ease infinite); 
-            transition: background-color 0.5s;
         }
 
-        /* --- ESTILO DO CARTÃO PRINCIPAL (Adaptativo) --- */
-        .card-container {
+        /* --- CABEÇALHO DO APP --- */
+        header {
             width: 100%;
-            max-width: 450px;
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        header h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.2rem;
+            color: var(--cor-destaque);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- LAYOUT PRINCIPAL --- */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+            gap: 30px;
+        }
+
+        /* Layout Responsivo: Lado a Lado no PC */
+        @media (min-width: 850px) {
+            .app-container {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+            .preview-section {
+                flex: 1;
+                position: sticky;
+                top: 90px;
+            }
+            .editor-section {
+                flex: 1.2;
+            }
+        }
+
+        /* --- ÁREA DE PRÉ-VISUALIZAÇÃO (O Cartão) --- */
+        .card-wrapper {
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+            perspective: 1000px;
         }
 
         .card {
-            background-color: var(--fundo-card-cor, white);
-            border: 1px solid #e5e7eb; 
-            border-radius: 1rem; 
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-            padding: 1.5rem 1rem;
-            margin-bottom: 1.25rem; 
-            text-align: center;
-            border-bottom: 7px solid var(--borda-cor, #c0c0c0);
-            min-height: 300px; 
+            background-color: #ffffff;
+            border-radius: var(--radius-card);
+            box-shadow: var(--sombra-flutuante);
+            padding: 1.5rem;
+            min-height: 500px;
             display: flex;
             flex-direction: column;
-            justify-content: space-around;
+            text-align: center;
+            position: relative;
+            border-bottom: 8px solid #dfe6e9; /* Borda inferior estética */
+            transition: all 0.3s ease;
             
-            /* Fundo do Card com Imagem Temática */
-            background-image: var(--fundo-card-imagem, none);
+            /* Imagem de Fundo do Cartão */
             background-size: cover;
             background-position: center;
-            background-blend-mode: overlay; 
-            transition: background-image 0.5s, box-shadow 0.5s;
+            background-blend-mode: overlay;
         }
 
-        /* --- ELEMENTOS DE TEXTO DO CARTÃO --- */
-        #saudacaoPersonalizada {
-            color: #4b5563; 
-            margin-bottom: 0.75rem;
-            font-size: 1.125rem;
+        /* Elementos Internos do Cartão */
+        .card-header { margin-bottom: 1rem; }
+        
+        .user-greeting {
+            font-size: 1.1rem;
+            color: #636E72;
+            margin-bottom: 5px;
         }
-
-        .nome-destaque {
-            font-weight: 700;
-            color: #d9534f; 
-            font-size: 1.8em;
-            line-height: 1.2;
-            display: block;
-        }
-
-        #eventoNome {
-            font-size: 2.8rem;
+        
+        .user-name {
             font-weight: 800;
-            color: var(--titulo-cor, #004d99);
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            margin-top: 0.5rem;
-            margin-bottom: 0.75rem;
-            font-family: var(--fonte-estilo, 'Inter', sans-serif);
-            line-height: 1.1;
-            transition: all 0.5s;
-        }
-
-        #contagemRegressiva {
+            color: var(--cor-destaque);
             font-size: 1.4rem;
-            color: #5cb85c; 
-            font-weight: 700;
-            background-color: #f3f4f6;
-            padding: 0.6rem;
-            border-radius: 0.6rem;
-            margin-bottom: 1rem;
-            border: 1px solid #ddd;
-            transition: all 0.5s;
-        }
-
-        .mensagem-principal {
-            color: var(--mensagem-cor, #374151);
-            font-size: 1.05rem;
-            border-top: 1px solid var(--borda-cor-separador, #e5e7eb);
-            padding-top: 1rem;
-            margin-top: 1rem;
-            white-space: pre-wrap;
-            flex-grow: 1;
-        }
-        
-        /* Estilos específicos para o elemento piscando (borda) */
-        .blinking-borda {
-             border-bottom: 7px solid var(--borda-cor, #c0c0c0); 
-             animation: border-blink-animacao 1.5s infinite;
-        }
-
-        /* --- SLIDESHOW / GALERIA DE FOTOS --- */
-        .galeria-container {
-            position: relative;
-            width: 100%;
-            /* MODIFICAÇÃO CHAVE: Removemos a altura fixa (height: 150px;) */
-            max-height: 250px; /* Altura máxima para evitar que imagens muito longas dominem */
-            margin-top: 1.5rem;
-            overflow: hidden;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            background-color: #f3f4f6; /* Cor para preencher o fundo da imagem, caso ela não seja 100% da largura/altura */
-        }
-
-        .galeria-imagem {
-            position: relative; /* Mudamos para relative para ajustar o object-fit */
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            
-            /* MODIFICAÇÃO CHAVE: Usamos 'contain' para mostrar a imagem completa */
-            object-fit: contain; 
-            
-            opacity: 0;
-            transition: opacity 1.5s ease-in-out; /* Transição suave */
-            
-            /* Garante que a imagem se ajuste à altura máxima do contêiner */
-            max-height: 250px; 
-        }
-        
-        .galeria-imagem.active {
-            opacity: 1;
-        }
-        
-        /* Otimiza a altura do contêiner para o modo 'contain' */
-        .galeria-container::before {
-            content: '';
             display: block;
-            /* Usamos um padding top para forçar uma proporção (opcional) */
-            padding-top: 55%; /* Proporção de 16:9 (100% / 1.8) para manter um bom espaço */
-        }
-        
-        .galeria-imagem {
-            position: absolute;
-            top: 0;
-            left: 0;
         }
 
-        /* --- CONTROLES DE PERSONALIZAÇÃO --- */
-        .secao-personalizacao {
-            background-color: #ffffff;
-            padding: 1.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 450px;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-top: 10px;
-        }
-        
-        .secao-opcoes {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-        
-        /* Ajuste para grids com 3 colunas para cores */
-        .secao-cores {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 1rem;
-            margin-top: 10px;
-        }
-        
-        .secao-fundo {
-             display: grid;
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 1rem;
-        }
-        
-        /* Ajuste para grids com 1 coluna para URLs longas */
-        .secao-urls {
-            display: grid;
-            grid-template-columns: 1fr; 
-            gap: 1rem;
+        .event-title {
+            font-size: 2.5rem;
+            line-height: 1.1;
+            color: #0984e3;
+            margin: 10px 0;
+            transition: all 0.3s;
+            /* Fonte padrão será setada via JS */
         }
 
-
-        label {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #4b5563;
-            margin-bottom: 0.25rem;
-        }
-        
-        input[type="text"], input[type="date"], #linkGerado, select, textarea {
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            border: 1px solid #d1d5db;
-            transition: border-color 0.2s;
-            background-color: #fff;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        
-        .input-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Estilização para inputs de cor */
-        input[type="color"] {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 40px;
-            padding: 0;
-            border: none;
-            cursor: pointer;
-            border-radius: 0.5rem;
-        }
-
-        button {
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            font-weight: 700;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-        }
-
-        .botao-ver {
-            background-color: #2563eb; 
-            color: white;
-        }
-        .botao-ver:hover {
-            background-color: #1d4ed8;
-            transform: translateY(-1px);
-        }
-        
-        .botao-whatsapp {
-            background-color: #10b981; 
-            margin-top: 0.625rem;
-        }
-        .botao-whatsapp:hover {
-            background-color: #059669;
-            transform: translateY(-1px);
-        }
-        
-        .botao-copiar {
-            background-color: #10b981; 
-        }
-
-        /* --- CAIXA DE MENSAGEM CUSTOMIZADA --- */
-        #messageBox {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.85);
-            color: white;
-            padding: 20px;
+        .countdown-box {
+            background: #f1f2f6;
+            padding: 10px;
             border-radius: 10px;
-            z-index: 1000;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            display: none;
-            max-width: 80%;
-            font-weight: 700; /* Destaque para a mensagem de feedback */
+            font-weight: 600;
+            color: #2d3436;
+            margin: 15px 0;
+            font-size: 0.95rem;
         }
 
-        #linkContainer {
+        .message-body {
+            font-size: 1.05rem;
+            line-height: 1.5;
+            color: #2d3436;
+            white-space: pre-wrap;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+            margin-top: 10px;
+        }
+
+        /* Galeria de Fotos (Maximizado) */
+        .photo-frame {
+            margin-top: 20px;
+            width: 100%;
+            padding-top: 125%; /* Proporção vertical alta (Retrato) */
+            position: relative;
+            background: #f5f6fa;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .photo-img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        .photo-img.active { opacity: 1; }
+
+        /* Player de Áudio Customizado */
+        .audio-player-ui {
             margin-top: 15px;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 50px;
+            padding: 5px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .audio-icon { font-size: 1.2rem; }
+        .audio-text { font-size: 0.8rem; color: #636E72; }
+
+        /* --- ÁREA DE EDIÇÃO (ABAS) --- */
+        .editor-panel {
+            background: white;
+            border-radius: var(--radius-app);
+            box-shadow: var(--sombra-flutuante);
+            overflow: hidden;
+        }
+
+        /* Barra de Abas */
+        .tabs-header {
+            display: flex;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+            overflow-x: auto; /* Rolagem no celular se precisar */
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 15px 10px;
+            border: none;
+            background: none;
+            font-weight: 600;
+            color: var(--cor-texto-leve);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+        }
+        
+        .tab-btn i { font-size: 1.2rem; } /* Ícones placeholder */
+        
+        .tab-btn.active {
+            color: var(--cor-destaque);
+            border-bottom-color: var(--cor-destaque);
+            background-color: #fdfdff;
+        }
+
+        /* Conteúdo das Abas */
+        .tab-content {
+            padding: 25px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Inputs e Controles */
+        .input-group { margin-bottom: 20px; }
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--cor-texto);
+        }
+
+        .styled-input, .styled-select, .styled-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dfe6e9;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            background: #fcfcfc;
+        }
+        .styled-input:focus { border-color: var(--cor-destaque); background: white; }
+
+        /* Controles de Cor (Grid) */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
             gap: 10px;
         }
         
-        /* --- ESTILOS DOS BOTÕES DE COMPARTILHAMENTO --- */
-        .share-buttons-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 colunas iguais */
-            gap: 10px; /* Espaçamento entre os botões */
+        input[type="color"] {
+            width: 100%; height: 45px;
+            border: none; border-radius: 8px;
+            cursor: pointer; padding: 0;
+            background: none;
         }
 
-        .botao-compartilhar {
-            padding: 0.8rem 0.5rem;
-            border-radius: 0.5rem;
-            font-size: 0.95rem;
-            font-weight: 700;
-            border: none;
-            cursor: pointer;
-            transition: opacity 0.2s, transform 0.1s;
-            color: white; /* Cor do texto padrão para todos */
-            display: flex; /* Para alinhar o ícone e o texto */
-            align-items: center; /* Alinha verticalmente */
-            justify-content: center; /* Centraliza horizontalmente */
-            gap: 5px; /* Espaçamento entre o ícone e o texto */
-        }
-        .botao-compartilhar:hover {
-             opacity: 0.9;
-             transform: translateY(-1px);
-        }
-
-        .share-icon {
-            height: 1.2em; /* Tamanho do ícone relativo ao tamanho da fonte do botão */
-            width: 1.2em;
-            vertical-align: middle; /* Alinha o ícone com o texto */
-            filter: brightness(0) invert(1); /* Torna o ícone branco para melhor contraste */
-        }
-
-        .botao-compartilhar.whatsapp {
-            background-color: #25d366; /* Cor oficial do WhatsApp */
-        }
-        
-        .botao-compartilhar.facebook {
-            background-color: #1877f2; /* Cor oficial do Facebook */
-        }
-        
-        .botao-compartilhar.instagram {
-            /* Simula um gradiente Instagram */
-            background-image: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); 
-        }
-
-        .botao-copiar { /* Estilo para o botão COPIAR COMPLETO */
-            background-color: #6c757d; 
-            color: white;
-            font-weight: 600;
-        }
-        .botao-copiar:hover {
-            background-color: #5a6268;
-            transform: translateY(-1px);
-        }
-        
-        /* --- ESTILOS DO NOVO POP-UP (MODAL) --- */
-        #newsModal {
-            position: fixed;
-            z-index: 1001; /* Acima de tudo */
-            left: 0;
-            top: 0;
+        /* Botões de Ação */
+        .action-btn {
             width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.7); /* Fundo escuro */
-            display: none; /* Escondido por padrão */
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: auto; /* Centraliza verticalmente e horizontalmente com flex */
-            padding: 30px;
-            border-radius: 10px;
-            border-top: 5px solid #00bcd4;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            position: relative;
-            animation: slideIn 0.5s ease-out;
-        }
-        
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .close-button {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .close-button:hover,
-        .close-button:focus {
-            color: #000;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        
-        .modal-content h3 {
-            color: #00bcd4;
-            margin-top: 0;
-            font-size: 1.6rem;
-        }
-        
-        .modal-content p {
-            color: #555;
-            margin-bottom: 20px;
-        }
-
-        .modal-content a.button-link {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #00bcd4;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
             font-weight: 700;
-            transition: background-color 0.2s;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+            margin-top: 10px;
         }
+        .btn-primary { background: var(--cor-destaque); color: white; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3); }
+        .btn-success { background: #00b894; color: white; box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3); }
         
-        .modal-content a.button-link:hover {
-            background-color: #0097a7;
-        }
-        /* --- FIM DOS ESTILOS DO POP-UP --- */
-        
-        
-        /* --- REMOVEMOS O BOTÃO DO CARTÃO, POIS AGORA TEREMOS O POP-UP --- */
-        .botao-novidades {
-            display: none; 
-        }
+        .action-btn:active { transform: scale(0.98); }
 
-        /* Estilo para a seção de Copyright */
-        .copyright {
-            margin-top: 20px;
+        /* --- ÁUDIO SELEÇÃO VISUAL --- */
+        .audio-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .audio-opt-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #eee;
+            background: #fff;
+            border-radius: 10px;
             font-size: 0.8rem;
-            color: #6b7280;
-            text-align: center;
+            cursor: pointer;
+            color: var(--cor-texto-leve);
         }
+        .audio-opt-btn.active {
+            background: var(--cor-destaque);
+            color: white;
+            border-color: var(--cor-destaque);
+        }
+        .audio-input-container { display: none; margin-top: 10px; padding: 15px; background: #f8f9fa; border-radius: 10px; }
+        .audio-input-container.visible { display: block; }
 
-        /* Esconder os controles no modo de visualização */
-        .modo-visualizacao #controles {
+        /* Gravação de Áudio */
+        .record-controls { display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 10px;}
+        .rec-btn { width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .rec-start { background: #ff7675; color: white; }
+        .rec-stop { background: #2d3436; color: white; }
+        .rec-status { text-align: center; font-size: 0.9rem; color: #e17055; margin-top: 5px; font-weight: 600; }
+
+        /* Link Gerado */
+        .share-area {
+            background: #f0fff4;
+            border: 1px dashed #00b894;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 20px;
             display: none;
         }
+        .social-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .social-btn {
+            padding: 10px; border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; font-size: 0.9rem;
+        }
+
+        /* --- ANIMAÇÕES ESPECIAIS --- */
+        .blinking-text { animation: blinkColor 1.5s infinite; }
+        .blinking-border { animation: blinkBorder 1.5s infinite; }
         
-        /* --- ESTILOS PARA O GUIA DE LINKS --- */
-        .guide-link-section {
-            text-align: center;
-            margin: 10px 0;
+        @keyframes blinkColor { 0%, 100% { color: var(--cor-pisca-1); } 50% { color: var(--cor-pisca-2); } }
+        @keyframes blinkBorder { 0%, 100% { border-bottom-color: var(--cor-pisca-1); } 50% { border-bottom-color: var(--cor-pisca-2); } }
+
+        /* POP-UP SIMPLES */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 2000;
+            display: none; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
         }
-        .guide-link {
-            color: #d9534f; /* Vermelho de Alerta */
-            font-weight: 700;
-            text-decoration: none;
-            border-bottom: 2px dashed #d9534f;
-            padding-bottom: 2px;
-            transition: color 0.2s;
-            display: inline-block;
-            font-size: 0.9em; /* Para não ficar muito grande */
+        .modal-box {
+            background: white; padding: 30px; width: 90%; max-width: 400px;
+            border-radius: 20px; text-align: center; position: relative;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .guide-link:hover {
-            color: #ff0000;
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #aaa; }
+        .timer-badge { background: var(--cor-destaque); color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; display: inline-block; margin-top: 10px; }
+
+        /* Mensagem Flutuante */
+        .toast-msg {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: #2d3436; color: white; padding: 12px 24px; border-radius: 30px;
+            font-size: 0.9rem; z-index: 3000; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
-        
     </style>
-    <style id="dynamic-animation-style"></style>
 </head>
-<body class="flex flex-col items-center">
+<body>
 
-    <div id="newsModal" style="display:none;">
-        <div class="modal-content">
-            <span class="close-button" onclick="fecharNovidades()">×</span>
-            <h3>🔔 GRANDES NOVIDADES!</h3>
-            <p>Implementamos recursos incríveis, como Galeria de Fotos (Slideshow), Mais Fontes e Animações Pisca-Pisca!</p>
-            <a href="novidades.html" class="button-link" target="_blank" onclick="fecharNovidades()">
-                Ver Detalhes Agora
-            </a>
-            <p style="font-size: 0.8em; color: #888; margin-top: 15px;">Feche esta janela ou aguarde 10 segundos.</p>
+    <!-- HEADER -->
+    <header>
+        <h1>✨ Criador de Cartões</h1>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="app-container">
+        
+        <!-- SEÇÃO ESQUERDA: PREVIEW -->
+        <div class="preview-section">
+            <div class="card-wrapper">
+                <div class="card" id="liveCard">
+                    <div class="card-header">
+                        <div class="user-greeting" id="cardGreeting">
+                            <span class="user-name" id="cardUserName">SEU NOME</span>
+                            desejando você
+                        </div>
+                        <div class="event-title" id="cardTitle">FELIZ NATAL</div>
+                    </div>
+
+                    <div class="countdown-box" id="cardCountdown">
+                        Calculando data...
+                    </div>
+
+                    <div class="message-body" id="cardMessage">
+                        Que a magia deste momento ilumine sua vida com alegria e paz!
+                    </div>
+
+                    <!-- Player de Áudio Visual -->
+                    <div id="cardAudioPlayer" class="audio-player-ui" style="display:none;">
+                        <span class="audio-icon">🔊</span>
+                        <span class="audio-text">Mensagem de Áudio</span>
+                        <audio id="realAudioElement" style="display:none;"></audio>
+                    </div>
+
+                    <!-- Galeria -->
+                    <div class="photo-frame" id="cardGallery" style="display:none;">
+                        <!-- Imagens injetadas via JS -->
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 15px; font-size: 0.8rem; color: #aaa;">
+                Pré-visualização ao vivo
+            </div>
         </div>
-    </div>
-    <div id="messageBox" class="text-lg"></div>
 
-    <div class="card-container">
-        <div class="card" id="cartao">
-            <div id="saudacaoPersonalizada">desejando você</div>
-            
-            <div id="eventoNome">FELIZ NATAL</div>
-            
-            <div id="contagemRegressiva">Contando...</div>
-
-            <div id="mensagemPrincipal" class="mensagem-principal">
-                Que Deus te abençoe com muita paz e alegria neste dia!
+        <!-- SEÇÃO DIREITA: EDITOR (ABAS) -->
+        <div class="editor-section">
+            <div class="editor-panel">
                 
+                <!-- Cabeçalho das Abas -->
+                <div class="tabs-header">
+                    <button class="tab-btn active" onclick="openTab('tabTexto')">📝 Texto</button>
+                    <button class="tab-btn" onclick="openTab('tabMidia')">🖼️ Mídia</button>
+                    <button class="tab-btn" onclick="openTab('tabAudio')">🎵 Áudio</button>
+                    <button class="tab-btn" onclick="openTab('tabEstilo')">🎨 Estilo</button>
+                    <button class="tab-btn" onclick="openTab('tabFinal')">🚀 Enviar</button>
                 </div>
 
-            <div id="galeriaContainer" class="galeria-container" style="display:none;">
+                <!-- CONTEÚDO: TEXTO -->
+                <div id="tabTexto" class="tab-content active">
+                    <div class="input-group">
+                        <label>Seu Nome (Remetente):</label>
+                        <input type="text" class="styled-input" id="inputNome" placeholder="Ex: Maria" oninput="updateCard()">
+                    </div>
+                    <div class="input-group">
+                        <label>Título do Evento:</label>
+                        <input type="text" class="styled-input" id="inputEvento" value="FELIZ NATAL" oninput="updateCard()">
+                    </div>
+                    <div class="input-group">
+                        <label>Data do Evento:</label>
+                        <input type="date" class="styled-input" id="inputData" onchange="updateCard()">
+                    </div>
+                    <div class="input-group">
+                        <label>Sua Mensagem:</label>
+                        <textarea class="styled-textarea" id="inputMsg" rows="3" oninput="updateCard()">Que a magia deste momento ilumine sua vida com alegria e paz!</textarea>
+                    </div>
+                    <button class="action-btn btn-primary" onclick="openTab('tabMidia')">Próximo: Fotos &rarr;</button>
                 </div>
+
+                <!-- CONTEÚDO: MÍDIA -->
+                <div id="tabMidia" class="tab-content">
+                    <div class="input-group">
+                        <label>Links das Fotos (Separe por ; ):</label>
+                        <textarea class="styled-textarea" id="inputFotos" rows="3" placeholder="Cole links do Google Drive ou Internet..." oninput="formatUrls(); updateCard()"></textarea>
+                        <small style="color:#888; display:block; margin-top:5px;">O sistema ajusta os links automaticamente.</small>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Imagem de Fundo do Cartão (URL):</label>
+                        <input type="text" class="styled-input" id="inputBgCard" placeholder="http://..." oninput="updateCard()">
+                    </div>
+                    <button class="action-btn btn-primary" onclick="openTab('tabAudio')">Próximo: Áudio &rarr;</button>
+                </div>
+
+                <!-- CONTEÚDO: ÁUDIO -->
+                <div id="tabAudio" class="tab-content">
+                    <label style="display:block; margin-bottom:10px; font-weight:600;">Escolha a fonte do áudio:</label>
+                    
+                    <div class="audio-options">
+                        <button class="audio-opt-btn active" onclick="showAudioInput('file')">📂 Arquivo</button>
+                        <button class="audio-opt-btn" onclick="showAudioInput('mic')">🎤 Gravar</button>
+                        <button class="audio-opt-btn" onclick="showAudioInput('url')">🔗 Link</button>
+                    </div>
+
+                    <!-- Input Arquivo -->
+                    <div id="audioFileArea" class="audio-input-container visible">
+                        <label>Selecione MP3 do celular/PC:</label>
+                        <input type="file" id="inputFileAudio" accept="audio/*" class="styled-input" onchange="handleFileUpload(this)">
+                    </div>
+
+                    <!-- Input Gravação -->
+                    <div id="audioMicArea" class="audio-input-container">
+                        <label>Gravar Mensagem de Voz:</label>
+                        <div class="record-controls">
+                            <button class="rec-btn rec-start" id="btnRecStart" onclick="startRec()">●</button>
+                            <button class="rec-btn rec-stop" id="btnRecStop" onclick="stopRec()" disabled>■</button>
+                        </div>
+                        <div class="rec-status" id="recStatus">Toque na bolinha para gravar</div>
+                    </div>
+
+                    <!-- Input URL -->
+                    <div id="audioUrlArea" class="audio-input-container">
+                        <label>Link direto de Áudio (MP3):</label>
+                        <input type="text" class="styled-input" id="inputUrlAudio" placeholder="http://site.com/musica.mp3" oninput="updateCard()">
+                    </div>
+
+                    <input type="hidden" id="audioBase64Data">
+                    <button class="action-btn btn-primary" style="margin-top:20px;" onclick="openTab('tabEstilo')">Próximo: Estilo &rarr;</button>
+                </div>
+
+                <!-- CONTEÚDO: ESTILO -->
+                <div id="tabEstilo" class="tab-content">
+                    <div class="input-group">
+                        <label>Fonte do Título:</label>
+                        <select class="styled-select" id="inputFonte" onchange="updateCard()">
+                            <option value="'Pacifico', cursive">Pacifico (Manuscrita)</option>
+                            <option value="'Playfair Display', serif">Playfair (Elegante)</option>
+                            <option value="'Roboto', sans-serif">Roboto (Moderna)</option>
+                            <option value="'Monoton', cursive">Monoton (Neon)</option>
+                            <option value="'Chakra Petch', sans-serif">Chakra (Futurista)</option>
+                            <option value="'Black Ops One', cursive">Black Ops (Forte)</option>
+                            <option value="'VT323', monospace">Pixel (Retro)</option>
+                        </select>
+                    </div>
+
+                    <div class="color-grid">
+                        <div>
+                            <label style="font-size:0.8rem;">Título</label>
+                            <input type="color" id="colorTitle" value="#0984e3" oninput="updateCard()">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem;">Borda</label>
+                            <input type="color" id="colorBorder" value="#dfe6e9" oninput="updateCard()">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem;">Fundo Card</label>
+                            <input type="color" id="colorBgCard" value="#ffffff" oninput="updateCard()">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem;">Fundo Página</label>
+                            <input type="color" id="colorBgPage" value="#F2F4F8" oninput="updateCard()">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group" style="margin-top:20px;">
+                        <label>Animação Pisca-Pisca:</label>
+                        <select class="styled-select" id="inputPisca" onchange="updateCard()">
+                            <option value="none">Sem Animação</option>
+                            <option value="titulo">Título Piscando</option>
+                            <option value="borda">Borda Piscando</option>
+                        </select>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <input type="color" id="pisca1" value="#ff7675">
+                            <input type="color" id="pisca2" value="#55efc4">
+                        </div>
+                    </div>
+
+                    <button class="action-btn btn-success" onclick="openTab('tabFinal')">Finalizar &rarr;</button>
+                </div>
+
+                <!-- CONTEÚDO: FINALIZAR -->
+                <div id="tabFinal" class="tab-content">
+                    <div style="text-align:center; margin-bottom:20px;">
+                        <h3>Tudo pronto?</h3>
+                        <p>Clique abaixo para criar seu link mágico.</p>
+                    </div>
+                    <button class="action-btn btn-success" onclick="generateLink()">✨ GERAR CARTÃO AGORA</button>
+
+                    <div class="share-area" id="shareArea">
+                        <label>Seu Link:</label>
+                        <input type="text" class="styled-input" id="finalLink" readonly onclick="this.select()">
+                        
+                        <div class="social-grid">
+                            <button class="social-btn" style="background:#25D366;" onclick="share('wa')">WhatsApp</button>
+                            <button class="social-btn" style="background:#1877F2;" onclick="share('fb')">Facebook</button>
+                            <button class="social-btn" style="background:#E1306C;" onclick="copyLink()">Instagram</button>
+                        </div>
+                        <button class="action-btn btn-primary" onclick="copyLink()" style="margin-top:10px;">Copiar Link</button>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 
-    <div class="secao-personalizacao" id="controles">
-        <h3 class="text-xl font-bold text-gray-800 border-b pb-2">✨ Personalize Conteúdo e Estilo</h3>
-        
-        <div class="input-group">
-            <label for="nomeInput">Seu Nome:</label>
-            <input type="text" id="nomeInput" placeholder="Seu nome" value="Seu Nome" maxlength="20" oninput="atualizarAlvo()">
-        </div>
-        
-        <div class="secao-opcoes">
-            <div class="input-group">
-                <label for="dataAlvoInput">Data do Evento:</label>
-                <input type="date" id="dataAlvoInput" onchange="atualizarAlvo()">
-            </div>
-            
-            <div class="input-group">
-                <label for="eventoInput">Nome do Evento (Título Principal):</label>
-                <input type="text" id="eventoInput" placeholder="Ex: FELIZ ANO NOVO" value="FELIZ NATAL" maxlength="25" oninput="atualizarAlvo()">
-            </div>
-        </div>
-        
-        <div class="input-group">
-            <label for="mensagemTexto">Texto da Mensagem (pode usar quebras de linha):</label>
-            <textarea id="mensagemTexto" rows="3" oninput="atualizarAlvo()">Que Deus te abençoe com muita paz e alegria neste dia!</textarea>
-        </div>
-
-        <h4 class="text-lg font-bold text-gray-700 border-t pt-3 mt-3">🎨 Estilos e Animação</h4>
-        
-        <div class="input-group">
-            <label for="fonteInput">Estilo da Fonte do Título:</label>
-            <select id="fonteInput" onchange="aplicarEstilos()">
-                <option value="Inter, sans-serif">Padrão (Inter)</option>
-                <option value="'Roboto', sans-serif">Roboto (Clássica)</option>
-                <option value="'Playfair Display', serif">Playfair Display (Elegante)</option>
-                <option value="'Pacifico', cursive">Pacifico (Manuscrita)</option>
-                <option value="'Monoton', cursive">Monoton (Vibrante)</option>
-                <option value="'Lato', sans-serif">Lato (Simples/Profissional)</option>
-                <option value="'Chakra Petch', sans-serif">Chakra Petch (Tecnológico)</option>
-            </select>
-        </div>
-
-        <div class="secao-cores">
-            <div class="input-group">
-                <label for="corTitulo">Cor do Título:</label>
-                <input type="color" id="corTitulo" value="#004d99" oninput="aplicarEstilos()">
-            </div>
-            <div class="input-group">
-                <label for="corMensagem">Cor da Mensagem:</label>
-                <input type="color" id="corMensagem" value="#374151" oninput="aplicarEstilos()">
-            </div>
-            <div class="input-group">
-                <label for="corBorda">Borda (Cor Fixa):</label>
-                <input type="color" id="corBorda" value="#c0c0c0" oninput="aplicarEstilos()">
-            </div>
-        </div>
-        <div class="secao-fundo">
-             <div class="input-group">
-                <label for="corFundoCard">Fundo do Cartão (Cor):</label>
-                <input type="color" id="corFundoCard" value="#ffffff" oninput="aplicarEstilos()">
-            </div>
-             <div class="input-group">
-                <label for="corFundoBody">Fundo da Página (Cor):</label>
-                <input type="color" id="corFundoBody" value="#f0f4f7" oninput="aplicarEstilos()">
-            </div>
-        </div>
-        
-        <h4 class="text-lg font-bold text-gray-700 border-t pt-3 mt-3">⚡ Animação Pisca-Pisca</h4>
-        
-        <div class="input-group">
-            <label for="elementoPiscar">Elemento que Pisca:</label>
-            <select id="elementoPiscar" onchange="aplicarEstilos()">
-                <option value="none">Nenhum</option>
-                <option value="titulo">Título Principal</option>
-                <option value="contagem">Contagem Regressiva</option>
-                <option value="borda">Borda (Cor Alternada)</option>
-            </select>
-        </div>
-
-        <div class="secao-cores">
-            <div class="input-group">
-                <label for="corPiscar1">Cor Principal (1):</label>
-                <input type="color" id="corPiscar1" value="#ff0000" oninput="aplicarEstilos()">
-            </div>
-            <div class="input-group">
-                <label for="corPiscar2">Cor Alternada (2):</label>
-                <input type="color" id="corPiscar2" value="#00ff00" oninput="aplicarEstilos()">
-            </div>
-        </div>
-
-        <h4 class="text-lg font-bold text-gray-700 border-t pt-3 mt-3">🖼️ Galeria de Fotos (Slideshow)</h4>
-        
-        <p class="guide-link-section">
-            <a href="https://cinemaxbr18-crypto.github.io/guiar-de-imagens/" target="_blank" class="guide-link">
-                ⚠️ CLIQUE AQUI SE SUAS FOTOS NÃO ESTIVEREM APARECENDO (Guia de Links)
-            </a>
-        </p>
-        
-        <div class="secao-urls">
-            <div class="input-group">
-                <label for="urlsInput">URLs das Imagens (Separe por ponto e vírgula `;`):</label>
-                <textarea id="urlsInput" rows="3" placeholder="Cole aqui links da internet ou links de compartilhamento do Google Drive" 
-                          oninput="formatarUrlsInput(); atualizarAlvo();"></textarea>
-            </div>
-        </div>
-        <h4 class="text-lg font-bold text-gray-700 border-t pt-3 mt-3">🖼️ Fundo da Página (Cores Predefinidas)</h4>
-        
-        <div class="input-group">
-            <label for="fundoBodySelect">Escolha a Cor de Fundo da Página (Body):</label>
-            <select id="fundoBodySelect" onchange="aplicarEstilosFundo()">
-                <option value="#f0f4f7">Padrão Claro (Cinza Suave)</option>
-                <option value="#8B4513">Marrom (Sela)</option>
-                <option value="#1c1c1c">Preto (Escuro)</option>
-                <option value="#ADD8E6">Azul Claro (Céu)</option>
-                <option value="#90EE90">Verde Claro</option>
-                <option value="#ffffff">Branco Puro</option>
-            </select>
-        </div>
-        <button class="botao-ver" onclick="atualizarAlvo()">
-            PRÉ-VISUALIZAR E ATUALIZAR
-        </button>
-        
-        <button class="botao-whatsapp" onclick="gerarLinkECompartilhar()">
-            GERAR LINK DE COMPARTILHAMENTO
-        </button>
-
-        <div id="linkContainer" style="display:none; margin-top: 1.5rem; border-top: 1px solid #e5e7eb; padding-top: 1rem;">
-            <label for="linkGerado" style="font-size: 1.1rem; font-weight: 700;">🔗 Link Gerado (Pronto para Compartilhar):</label>
-            <input type="text" id="linkGerado" readonly style="margin-bottom: 10px; background-color: #f3f4f6;">
-            
-            <p style="font-size: 0.9em; color: #d9534f; margin: 5px 0 15px 0;">
-                **Dica:** Para o Instagram/Stories, COPIE o link acima e cole manualmente.
-            </p>
-
-            <div class="share-buttons-grid">
-                <button class="botao-compartilhar whatsapp" onclick="compartilharWhatsApp()">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" class="share-icon">
-                    WhatsApp
-                </button>
-                <button class="botao-compartilhar facebook" onclick="compartilharFacebook()">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" class="share-icon">
-                    Facebook
-                </button>
-                 <button class="botao-compartilhar instagram" onclick="copiarLink()">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Instagram" class="share-icon">
-                    Instagram
-                </button>
-            </div>
-             <button class="botao-copiar" style="margin-top: 10px; background-color: #1a73e8;" onclick="copiarLink()">
-                COPIAR LINK COMPLETO
-            </button>
-        </div>
-
-
-        <div class="copyright">
-            Código desenvolvido para uso pessoal. **Todos os direitos reservados a Geilson Carlos.**
+    <!-- Modal de Novidades -->
+    <div class="modal-overlay" id="newsModal">
+        <div class="modal-box">
+            <span class="close-modal" onclick="closeModal()">×</span>
+            <div style="font-size:2rem;">🎁</div>
+            <h2>Novidades!</h2>
+            <p>Agora você pode gravar áudio, usar abas organizadas e criar cartões incríveis em qualquer dispositivo.</p>
+            <a href="novidades.html" target="_blank" class="action-btn btn-primary" style="display:inline-block; text-decoration:none; margin-top:10px;" onclick="closeModal()">Ver Detalhes</a>
+            <br>
+            <span class="timer-badge" id="modalTimer">10s</span>
         </div>
     </div>
+
+    <!-- Toast de Mensagem -->
+    <div class="toast-msg" id="toast">Mensagem Aqui</div>
+
+    <style id="dynamicStyles"></style>
 
     <script>
-        // Variáveis globais
-        window.countdownInterval = null;
-        window.slideshowInterval = null; 
-        
-        // Versão do conteúdo de novidades. Mude este número para reexibir o pop-up para todos.
-        // AUMENTADO PARA 3 PARA FORÇAR A EXIBIÇÃO APÓS O ÚLTIMO BUG
-        const NEWS_VERSION = 3; 
+        // --- ESTADO DO APP ---
+        let mediaRecorder;
+        let audioChunks = [];
+        const APP_VERSION = 12;
 
-        // Função para exibir mensagens na tela (substitui alert() e confirm())
-        function showMessage(message, duration = 3000) {
-            const msgBox = document.getElementById('messageBox');
-            msgBox.textContent = message;
-            msgBox.style.display = 'block';
-            setTimeout(() => {
-                msgBox.style.display = 'none';
-            }, duration);
+        // --- INICIALIZAÇÃO ---
+        window.onload = () => {
+            setDefaultDate();
+            loadParams();
+            checkNews();
+        };
+
+        // Define data padrão (Natal) se vazio
+        function setDefaultDate() {
+            const today = new Date();
+            let targetYear = today.getFullYear();
+            if (today.getMonth() == 11 && today.getDate() > 25) targetYear++;
+            document.getElementById('inputData').value = `${targetYear}-12-25`;
         }
 
-        // --- FUNÇÕES DO POP-UP DE NOVIDADES ---
-
-        /**
-         * Exibe o pop-up de novidades após um atraso, se ainda não foi visto.
-         */
-        function exibirNovidadesAposAtraso() {
-            const lastSeenVersion = localStorage.getItem('news_version_seen');
-
-            // Verifica se a versão atual é a mesma da última vista
-            if (lastSeenVersion >= NEWS_VERSION) {
-                return; // Já viu esta versão, não exibe
-            }
-
-            // Exibe o modal 10 segundos após o carregamento (AJUSTE SOLICITADO)
-            setTimeout(() => {
-                const modal = document.getElementById('newsModal');
-                if (modal) {
-                    modal.style.display = 'flex';
-                }
-            }, 10000); // 10 segundos de atraso
-        }
-
-        /**
-         * Fecha o pop-up e marca a versão atual como vista.
-         */
-        function fecharNovidades() {
-            const modal = document.getElementById('newsModal');
-            if (modal) {
-                modal.style.display = 'none';
-                // Salva a versão atual como vista no localStorage
-                localStorage.setItem('news_version_seen', NEWS_VERSION);
-            }
-        }
-        
-        // --- FIM DAS FUNÇÕES DO POP-UP DE NOVIDADES ---
-
-
-        /**
-         * FUNÇÃO CRÍTICA: Converte links de compartilhamento populares (Drive, ImgBB Viewer)
-         * para links diretos de embed ou imagem pura.
-         */
-        function converterLinkImagem(url) {
-            // Remove espaços em branco
-            let urlLimpa = url.trim();
-
-            // 1. REGRA GOOGLE DRIVE (Mais robusta, prioridade alta)
-            const driveShareRegex = /drive\.google\.com\/(?:file\/d|open\?id=|uc\?export=download&id=)([^&/]+)/i;
-            const driveMatch = urlLimpa.match(driveShareRegex);
-            if (driveMatch && driveMatch[1]) {
-                const fileId = driveMatch[1];
-                return `https://drive.google.com/uc?export=view&id=${fileId}`; // Formato de embed
-            }
+        // --- NAVEGAÇÃO DE ABAS ---
+        function openTab(tabId) {
+            // Esconde todas
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             
-            // 2. REGRA IMGBB (Converte link da página de visualização para link direto)
-            // Tenta converter ibb.co/ID para i.ibb.co/ID/
-            const ibbViewerRegex = /^https?:\/\/(?:www\.)?ibb\.co\/([a-zA-Z0-9]+)$/i;
-            const ibbMatch = urlLimpa.match(ibbViewerRegex);
-            if (ibbMatch) {
-                // Tentativa de conversão para o formato de link direto
-                showMessage("⚠️ O link do ImgBB foi reconhecido como link de visualização. O sistema tentará carregar o link direto, mas se a foto não aparecer, você deve copiar o 'Link Direto' completo do ImgBB.", 6000);
-                return `https://i.ibb.co/${ibbMatch[1]}/`; // Assume que o ID é o suficiente para o caminho
-            }
+            // Mostra a selecionada
+            document.getElementById(tabId).classList.add('active');
             
-            // 3. REGRA IMAGEM PURA (Se já for um link direto válido)
-            // Se o link termina em uma extensão de imagem comum ou for um link i.ibb.co
-            if (urlLimpa.match(/\.(jpe?g|png|gif|webp|bmp|svg)$/i) || urlLimpa.includes('i.ibb.co') || urlLimpa.includes('imgur.com/')) {
-                return urlLimpa;
-            }
-
-            // Se for um link de visualização ImgBB não convertido OU qualquer outro link que não foi reconhecido.
-            if (urlLimpa.includes('ibb.co')) {
-                // Mensagem de aviso mais específica
-                showMessage(`O link do ImgBB (${urlLimpa}) é um Link de Visualização. Por favor, tente selecionar a opção 'Link Direto' no ImgBB ou cole uma URL que termine em .jpg ou .png.`, 5000);
-            }
-            
-            // Retorna o original se não houver correspondência (e o erro será tratado pelo img.onerror)
-            return urlLimpa;
-        }
-        
-        /**
-         * NOVO: Adiciona o ponto e vírgula (separador) automaticamente após o reconhecimento de uma extensão de imagem.
-         */
-        function formatarUrlsInput() {
-            const urlsInput = document.getElementById('urlsInput');
-            let valor = urlsInput.value;
-            let valorOriginal = valor; // Salva o valor original para comparação
-            
-            // Expressão regular para encontrar uma URL de imagem (termina com .extensão)
-            const imageRegex = /(\.jpe?g|\.png|\.gif|\.webp|\.bmp|\.svg)(\s*)/i;
-            
-            // 1. Substitui Quebras de Linha (ENTER) e múltiplos espaços por um espaço simples
-            valor = valor.replace(/\n/g, ' ').replace(/\s{2,}/g, ' ');
-
-            // 2. Adiciona '; ' após qualquer extensão de imagem que não seja seguida por um separador
-            valor = valor.replace(imageRegex, function(match, ext, space) {
-                const remaining = valor.substring(valor.indexOf(match) + match.length);
-                
-                // Verifica se o próximo caractere significativo (após espaços) não é um ponto e vírgula
-                if (remaining.trim().charAt(0) !== ';') {
-                   return `${ext}; `;
-                }
-                return `${ext}${space}`;
+            // Ativa o botão correspondente
+            // Encontra o botão que chama essa função
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => {
+                if(btn.getAttribute('onclick').includes(tabId)) btn.classList.add('active');
             });
-            
-            // 3. Garante que nunca haja dois separadores ou um separador seguido de espaço extra
-            valor = valor.replace(/;\s*;/g, ';').replace(/;+/g, ';');
-            
-            // Remove o ponto e vírgula do final se ele estiver lá
-            if (valor.endsWith(';')) {
-                valor = valor.slice(0, -1);
-            }
-            
-            // Adiciona um espaço após cada ponto e vírgula, para melhor visualização
-            valor = valor.replace(/;(?!\s)/g, '; '); 
-            
-            urlsInput.value = valor.trim();
-            
-            // NOVO AVISO DE SUCESSO (AJUSTE SOLICITADO)
-            if (valorOriginal.trim() !== valor.trim()) {
-                showMessage("✅ Ponto e vírgula (;) adicionado automaticamente. Pronto para o próximo link!", 2000); // 2 segundos
-            }
         }
 
-        /**
-         * Inicia ou reinicia o slideshow de fotos
-         */
-        function iniciarSlideshow(urls) {
-            const galeria = document.getElementById('galeriaContainer');
+        // --- CONTROLE DE INPUT DE ÁUDIO ---
+        function showAudioInput(type) {
+            document.querySelectorAll('.audio-input-container').forEach(el => el.classList.remove('visible'));
+            document.querySelectorAll('.audio-opt-btn').forEach(el => el.classList.remove('active'));
             
-            // 1. Limpa o contêiner e o intervalo anterior
-            galeria.innerHTML = '';
-            clearInterval(window.slideshowInterval);
-
-            if (!urls || urls.length === 0 || urls.every(url => url.trim() === '')) {
-                // Não há URLs válidas, apenas limpa e sai
-                galeria.style.display = 'none';
-                return;
-            }
-
-            galeria.style.display = 'block';
-            let currentIndex = 0;
-
-            // 2. Cria os elementos <img> no DOM
-            urls.forEach((url, index) => {
-                const img = document.createElement('img');
-                img.src = url.trim();
-                img.className = 'galeria-imagem';
-                
-                // NOVO: Tratamento de erro de carregamento 
-                img.onerror = function() {
-                    console.error(`Falha ao carregar a imagem, verifique as permissões de compartilhamento do Drive/link ImgBB: ${this.src}`);
-                };
-                
-                // Define a primeira imagem como ativa
-                if (index === 0) {
-                    img.classList.add('active');
-                }
-                galeria.appendChild(img);
-            });
-
-            const imagens = document.querySelectorAll('.galeria-imagem');
-
-            // 3. Função de transição
-            function nextSlide() {
-                // Remove a classe 'active' da imagem atual
-                if (imagens[currentIndex]) {
-                    imagens[currentIndex].classList.remove('active');
-                }
-                
-                // Avança para a próxima imagem (ou volta para a primeira)
-                currentIndex = (currentIndex + 1) % imagens.length;
-                
-                // Adiciona a classe 'active' na nova imagem
-                if (imagens[currentIndex]) {
-                    imagens[currentIndex].classList.add('active');
-                }
-            }
-            
-            // 4. Inicia o loop (alterna a cada 4 segundos)
-            window.slideshowInterval = setInterval(nextSlide, 4000); 
-        }
-
-
-        /**
-         * Seleciona a imagem de fundo do card e o gradiente do body com base no tema do evento
-         */
-        function selecionarFundoTematico(evento) {
-            const lowerEvent = evento.toLowerCase();
-            const card = document.getElementById('cartao');
-            
-            let cardImage = 'none';
-            let bodyGradient = 'none';
-            let bodyAnimation = 'moveGradient 15s ease infinite'; 
-            
-            let bodyColor = document.getElementById('corFundoBody').value; 
-
-            // Se a cor do corpo for diferente do padrão
-            const isDefaultColor = bodyColor === '#f0f4f7';
-
-            if (!isDefaultColor) {
-                 // Cor customizada ou do select, então anula o tema de gradiente/animação
-                 card.style.animation = 'none';
+            if(type === 'file') {
+                document.getElementById('audioFileArea').classList.add('visible');
+                event.target.classList.add('active'); // highlight btn
+            } else if (type === 'mic') {
+                document.getElementById('audioMicArea').classList.add('visible');
+                event.target.classList.add('active');
             } else {
-                 // --- TEMAS (Somente se a cor não foi customizada) ---
-                if (lowerEvent.includes('natal')) {
-                    cardImage = 'url(https://placehold.co/450x300/a30000/ffffff?text=BOLAS+DE+NATAL)';
-                    bodyGradient = 'linear-gradient(135deg, #b30000 0%, #006600 100%)';
-                    bodyAnimation = 'moveGradient 10s ease infinite';
-                    bodyColor = '#b30000';
-                    card.style.animation = 'natalPulse 4s ease-in-out infinite'; 
-
-                } else if (lowerEvent.includes('ano novo') || lowerEvent.includes('anonovo')) {
-                    cardImage = 'url(https://placehold.co/450x300/000000/ffd700?text=FOGOS+DE+ARTIFICIO)';
-                    bodyGradient = 'linear-gradient(135deg, #1c1c1c 0%, #ffcc00 50%, #1c1c1c 100%)';
-                    bodyAnimation = 'moveGradient 5s linear infinite';
-                    bodyColor = '#1c1c1c';
-                    card.style.animation = 'none'; 
-
-                } else if (lowerEvent.includes('aniversário') || lowerEvent.includes('aniversario')) {
-                    cardImage = 'url(https://placehold.co/450x300/e91e63/ffeb3b?text=BALOES+E+CONFETE)';
-                    bodyGradient = 'linear-gradient(135deg, #e91e63 0%, #9c27b0 100%)';
-                    bodyAnimation = 'moveGradient 12s ease infinite';
-                    bodyColor = '#e91e63';
-                    card.style.animation = 'none'; 
-
-                } else if (lowerEvent.includes('bom dia')) {
-                    cardImage = 'url(https://placehold.co/450x300/87ceeb/ffd700?text=CEU+AZUL+E+SOL)';
-                    bodyGradient = 'linear-gradient(135deg, #ffeb3b 0%, #87ceeb 100%)';
-                    bodyAnimation = 'moveGradient 20s ease infinite';
-                    bodyColor = '#ffeb3b';
-                    card.style.animation = 'none'; 
-
-                } else if (lowerEvent.includes('boa noite') || lowerEvent.includes('boanoite')) {
-                    cardImage = 'url(https://placehold.co/450x300/1a1a2e/ffffff?text=NOITE+ESTRELADA)';
-                    bodyGradient = 'linear-gradient(135deg, #1a1a2e 0%, #3a0050 100%)';
-                    bodyAnimation = 'moveGradient 18s ease infinite';
-                    bodyColor = '#1a1a2e';
-                    card.style.animation = 'none'; 
-
-                } else {
-                    // Tema Padrão 
-                    cardImage = 'none';
-                    bodyGradient = 'linear-gradient(135deg, #f0f4f7 0%, #e0eaf1 100%)';
-                    bodyAnimation = 'moveGradient 15s ease infinite';
-                    bodyColor = '#f0f4f7';
-                    card.style.animation = 'none'; 
-                }
-            }
-
-            // Aplica os estilos no DOM
-            document.body.style.backgroundImage = bodyGradient;
-            document.body.style.backgroundColor = bodyColor;
-            document.body.style.setProperty('--body-animation', bodyAnimation);
-            card.style.backgroundImage = cardImage;
-        }
-
-
-        /**
-         * Funções de Estilização e Animação
-         */
-        
-        function injectDynamicAnimationCSS(cor1, cor2, elementoPiscar) {
-            const styleElement = document.getElementById('dynamic-animation-style');
-            let css = '';
-            
-            // 1. Animação de cor para Título e Contagem (Text-Color)
-            css += `@keyframes color-blink-animacao {
-                0%, 100% { color: ${cor1}; }
-                50% { color: ${cor2}; }
-            }`;
-
-            // 2. Animação de cor para a Borda (Border-Color)
-            css += `@keyframes border-blink-animacao {
-                0%, 100% { border-bottom-color: ${cor1}; }
-                50% { border-bottom-color: ${cor2}; }
-            }`;
-            
-            styleElement.textContent = css;
-        }
-        
-        // Função para aplicar estilos de fundo a partir do select
-        function aplicarEstilosFundo() {
-            const fundoBodySelect = document.getElementById('fundoBodySelect').value;
-            const corFundoBodyInput = document.getElementById('corFundoBody');
-            
-            // 1. Sincroniza o input[type=color] com o valor selecionado
-            corFundoBodyInput.value = fundoBodySelect;
-
-            // 2. Aplica a cor de fundo do Body (página)
-            document.body.style.backgroundColor = fundoBodySelect;
-            document.body.style.setProperty('--fundo-body-cor', fundoBodySelect);
-            
-            // 3. Reseta gradiente e animação para garantir que a cor sólida funcione
-            document.body.style.backgroundImage = 'none';
-            document.body.style.setProperty('--fundo-body-gradiente', 'none');
-            document.body.style.setProperty('--body-animation', 'none');
-            
-            showMessage(`Fundo da página alterado para a cor selecionada.`, 1500);
-        }
-
-        function aplicarEstilos() {
-            const titulo = document.getElementById('eventoNome');
-            const mensagem = document.getElementById('mensagemPrincipal');
-            const cartao = document.getElementById('cartao');
-            
-            // 1. Estilos Estáticos (Cores e Fontes)
-            const fonte = document.getElementById('fonteInput').value;
-            const corTitulo = document.getElementById('corTitulo').value;
-            const corMensagem = document.getElementById('corMensagem').value;
-            const corBorda = document.getElementById('corBorda').value;
-            const corFundoCard = document.getElementById('corFundoCard').value;
-            const corFundoBody = document.getElementById('corFundoBody').value; // Cor do input[type=color]
-
-            titulo.style.fontFamily = fonte;
-            
-            // Aplica as variáveis CSS
-            document.documentElement.style.setProperty('--titulo-cor', corTitulo);
-            document.documentElement.style.setProperty('--mensagem-cor', corMensagem);
-            document.documentElement.style.setProperty('--borda-cor', corBorda);
-            document.documentElement.style.setProperty('--fonte-estilo', fonte);
-            document.documentElement.style.setProperty('--fundo-card-cor', corFundoCard);
-            document.documentElement.style.setProperty('--fundo-body-cor', corFundoBody);
-            
-            // Aplica estilos diretamente para o body/card
-            document.body.style.backgroundColor = corFundoBody;
-            cartao.style.backgroundColor = corFundoCard;
-            
-            // 2. Animação Pisca-Pisca
-            const elementoPiscar = document.getElementById('elementoPiscar').value;
-            const corPiscar1 = document.getElementById('corPiscar1').value;
-            const corPiscar2 = document.getElementById('corPiscar2').value;
-            
-            // Remove todas as classes de animação antes de aplicar a nova
-            titulo.classList.remove('is-blinking');
-            document.getElementById('contagemRegressiva').classList.remove('is-blinking');
-            cartao.classList.remove('blinking-borda');
-            cartao.style.animation = 'none'; // Reseta animação de pulso
-
-            // Injeta o CSS dinâmico (keyframe)
-            injectDynamicAnimationCSS(corPiscar1, corPiscar2, elementoPiscar);
-            
-            // Aplica a classe de animação no elemento correto
-            if (elementoPiscar === 'titulo') {
-                titulo.classList.add('is-blinking');
-            } else if (elementoPiscar === 'contagem') {
-                document.getElementById('contagemRegressiva').classList.add('is-blinking');
-            } else if (elementoPiscar === 'borda') {
-                cartao.classList.add('blinking-borda');
-            }
-            
-            // Se o seletor de fundo predefinido estiver ativo, o CSS sólido será aplicado novamente.
-            if (document.getElementById('fundoBodySelect').value !== document.getElementById('fundoBodySelect').options[0].value) {
-                aplicarEstilosFundo();
+                document.getElementById('audioUrlArea').classList.add('visible');
+                event.target.classList.add('active');
             }
         }
 
-        /**
-         * Função principal de contagem regressiva
-         */
-        function atualizarContagem(dataAlvo) {
-            clearInterval(window.countdownInterval); 
+        // --- LÓGICA PRINCIPAL DE ATUALIZAÇÃO (PREVIEW) ---
+        function updateCard() {
+            // Coleta valores
+            const nome = document.getElementById('inputNome').value || 'SEU NOME';
+            const evento = document.getElementById('inputEvento').value || 'EVENTO';
+            const msg = document.getElementById('inputMsg').value;
+            const bgCard = document.getElementById('inputBgCard').value;
+            
+            // Cores & Fontes
+            const font = document.getElementById('inputFonte').value;
+            const colTitle = document.getElementById('colorTitle').value;
+            const colBorder = document.getElementById('colorBorder').value;
+            const colBgCard = document.getElementById('colorBgCard').value;
+            const colBgPage = document.getElementById('colorBgPage').value;
+            
+            // Aplica no DOM
+            document.getElementById('cardUserName').textContent = nome.toUpperCase();
+            document.getElementById('cardTitle').textContent = evento.toUpperCase();
+            document.getElementById('cardMessage').textContent = msg;
+            
+            // Estilos CSS Dinâmicos
+            const card = document.getElementById('liveCard');
+            card.style.backgroundColor = colBgCard;
+            card.style.borderBottomColor = colBorder;
+            document.body.style.backgroundColor = colBgPage; // Fundo da Página
+            
+            const titleEl = document.getElementById('cardTitle');
+            titleEl.style.fontFamily = font;
+            titleEl.style.color = colTitle;
 
-            function calcularTempo() {
-                const agora = new Date().getTime();
-                const diferenca = dataAlvo - agora;
+            if(bgCard) {
+                card.style.backgroundImage = `url('${bgCard}')`;
+            } else {
+                card.style.backgroundImage = 'none';
+            }
 
-                const contagemElemento = document.getElementById('contagemRegressiva');
+            // Pisca-Pisca
+            const piscaMode = document.getElementById('inputPisca').value;
+            const c1 = document.getElementById('pisca1').value;
+            const c2 = document.getElementById('pisca2').value;
+            
+            // Reseta classes
+            titleEl.classList.remove('blinking-text');
+            card.classList.remove('blinking-border');
+            
+            // Injeta CSS de Animação
+            document.getElementById('dynamicStyles').textContent = `
+                :root { --cor-pisca-1: ${c1}; --cor-pisca-2: ${c2}; }
+            `;
+            
+            if(piscaMode === 'titulo') titleEl.classList.add('blinking-text');
+            if(piscaMode === 'borda') card.classList.add('blinking-border');
 
-                if (diferenca < 0) {
-                    contagemElemento.textContent = "🥳 O Evento Começou/Passou! 🥳";
-                    clearInterval(window.countdownInterval);
+            // Contagem
+            updateCountdown();
+
+            // Áudio Check
+            const audioFile = document.getElementById('audioBase64Data').value;
+            const audioUrl = document.getElementById('inputUrlAudio').value;
+            if(audioFile || audioUrl) {
+                document.getElementById('cardAudioPlayer').style.display = 'flex';
+            } else {
+                document.getElementById('cardAudioPlayer').style.display = 'none';
+            }
+
+            // Fotos
+            processPhotos();
+        }
+
+        // --- CONTAGEM REGRESSIVA ---
+        let countdownInterval;
+        function updateCountdown() {
+            const dateStr = document.getElementById('inputData').value;
+            const box = document.getElementById('cardCountdown');
+            
+            clearInterval(countdownInterval);
+            
+            if(!dateStr) return;
+
+            const targetDate = new Date(dateStr + "T00:00:00").getTime();
+
+            const run = () => {
+                const now = new Date().getTime();
+                const diff = targetDate - now;
+
+                if (diff < 0) {
+                    box.textContent = "🎉 O GRANDE DIA CHEGOU! 🎉";
+                    clearInterval(countdownInterval);
                     return;
                 }
 
-                const totalSegundos = Math.floor(diferenca / 1000);
-                const dias = Math.floor(totalSegundos / (60 * 60 * 24));
-                const horas = Math.floor((totalSegundos % (60 * 60 * 24)) / (60 * 60));
-                const minutos = Math.floor((totalSegundos % (60 * 60)) / 60);
-                const segundos = totalSegundos % 60;
-                
-                const meses = Math.floor(dias / 30);
-                const diasRestantes = dias % 30;
+                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
 
-                let textoContagem = "";
-                
-                if (dias >= 45) {
-                    // Contagem em meses e dias
-                    // CORRIGIDO: Adicionado acento circunflexo à palavra "meses"
-                    textoContagem = `${meses} mês${meses !== 1 ? 'es' : 'ês'}, ${diasRestantes} dia${diasRestantes !== 1 ? 's' : ''}, ${horas}h, ${minutos}m, ${segundos}s antes`;
-                } else if (dias >= 1) {
-                    // Contagem em dias, horas, minutos e segundos
-                    textoContagem = `${dias} dia${dias !== 1 ? 's' : ''}, ${horas}h, ${minutos}m, ${segundos}s antes`;
-                } else {
-                    // Contagem em horas, minutos e segundos (menos de 24h)
-                    textoContagem = `${horas}h, ${minutos}m, ${segundos}s antes`;
+                box.textContent = `${d}d ${h}h ${m}m ${s}s para o evento`;
+            };
+            run();
+            countdownInterval = setInterval(run, 1000);
+        }
+
+        // --- FOTOS / CARROSSEL ---
+        let slideInterval;
+        function formatUrls() {
+            let val = document.getElementById('inputFotos').value;
+            // Lógica simples para adicionar ;
+            if(val.includes('http') && !val.includes(';')) {
+               // Se user colar vários links com espaço, tenta arrumar
+               val = val.replace(/\shttp/g, '; http');
+            }
+            // Limpeza básica
+            document.getElementById('inputFotos').value = val;
+        }
+
+        function processPhotos() {
+            const raw = document.getElementById('inputFotos').value;
+            const container = document.getElementById('cardGallery');
+            
+            if(!raw.trim()) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            container.innerHTML = '';
+            clearInterval(slideInterval);
+
+            const urls = raw.split(';').map(u => u.trim()).filter(u => u.length > 5);
+            
+            // Converter links Google Drive/ImgBB (Versão Simplificada)
+            const cleanUrls = urls.map(url => {
+                if(url.includes('drive.google.com')) {
+                    const id = url.match(/d\/([^/]+)/) || url.match(/id=([^&]+)/);
+                    if(id) return `https://drive.google.com/uc?export=view&id=${id[1]}`;
                 }
+                return url;
+            });
+
+            if(cleanUrls.length === 0) {
+                 container.style.display = 'none';
+                 return;
+            }
+
+            cleanUrls.forEach((u, i) => {
+                const img = document.createElement('img');
+                img.src = u;
+                img.className = i === 0 ? 'photo-img active' : 'photo-img';
+                container.appendChild(img);
+            });
+
+            if(cleanUrls.length > 1) {
+                let idx = 0;
+                slideInterval = setInterval(() => {
+                    const imgs = document.querySelectorAll('.photo-img');
+                    imgs[idx].classList.remove('active');
+                    idx = (idx + 1) % imgs.length;
+                    imgs[idx].classList.add('active');
+                }, 3000);
+            }
+        }
+
+        // --- ÁUDIO (GRAVAÇÃO & UPLOAD) ---
+        function handleFileUpload(input) {
+            const file = input.files[0];
+            if(!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('audioBase64Data').value = e.target.result;
+                showToast("Áudio carregado com sucesso!");
+                updateCard();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function startRec() {
+            if (!navigator.mediaDevices) return showToast("Erro: Microfone não suportado.");
+            
+            navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.start();
                 
-                contagemElemento.textContent = textoContagem;
-            }
+                document.getElementById('btnRecStart').style.display = 'none';
+                document.getElementById('btnRecStop').disabled = false;
+                document.getElementById('recStatus').textContent = "Gravando... (Fale agora)";
+                document.getElementById('recStatus').style.color = "red";
 
-            calcularTempo(); // Roda imediatamente
-            window.countdownInterval = setInterval(calcularTempo, 1000); // Roda a cada segundo
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/mp3' });
+                    const reader = new FileReader();
+                    reader.readAsDataURL(blob);
+                    reader.onloadend = () => {
+                        document.getElementById('audioBase64Data').value = reader.result;
+                        showToast("Gravação salva!");
+                        updateCard();
+                    };
+                };
+            });
         }
 
-
-        /**
-         * Atualiza os elementos visíveis do cartão baseado nos inputs e aplica estilos.
-         */
-        function atualizarAlvo() {
-            const nome = document.getElementById('nomeInput').value || "Alguém";
-            const dataStr = document.getElementById('dataAlvoInput').value;
-            const evento = document.getElementById('eventoInput').value || "EVENTO ESPECIAL";
-            const mensagem = document.getElementById('mensagemTexto').value || "Uma mensagem de carinho para você!";
-            
-            // 1. Coleta URLs e as prepara (inclui a limpeza)
-            let urlsBrutas = document.getElementById('urlsInput').value;
-            
-            if (urlsBrutas) {
-                // Limpeza final para garantir que apenas o separador ';' seja usado
-                urlsBrutas = urlsBrutas
-                    .replace(/\n/g, ';') // Substitui quebras de linha por ;
-                    .replace(/\s+/g, ' ') // Substitui múltiplos espaços por um único
-                    .replace(/;\s*;/g, ';') // Remove separadores duplicados
-                    .trim(); 
-            }
-
-            let urlsArray = [];
-            if (urlsBrutas) {
-                // Separa os links por ponto e vírgula, remove espaços e filtra vazios
-                urlsArray = urlsBrutas.split(';')
-                    .map(url => url.trim())
-                    .filter(url => url !== '')
-                    // Conversão automática: tenta converter o link (Drive ou ImgBB)
-                    .map(url => converterLinkImagem(url)); 
-            }
-
-            const saudacao = document.getElementById('saudacaoPersonalizada');
-            const eventoNome = document.getElementById('eventoNome');
-            const mensagemPrincipal = document.getElementById('mensagemPrincipal');
-
-            // 2. Atualizar Conteúdo
-            saudacao.innerHTML = `<span class="nome-destaque">${nome.toUpperCase()}</span> desejando você`;
-            eventoNome.textContent = evento.toUpperCase();
-            mensagemPrincipal.textContent = mensagem;
-
-            // 3. Atualizar Contagem
-            if (dataStr) {
-                // O "T00:00:00" garante que a contagem seja para o início do dia no fuso horário local
-                const dataAlvo = new Date(dataStr + "T00:00:00").getTime(); 
-                atualizarContagem(dataAlvo);
-            } else {
-                document.getElementById('contagemRegressiva').textContent = "Selecione uma data no campo de Data do Evento";
-                clearInterval(window.countdownInterval);
-            }
-
-            // 4. Aplicar Estilos e Temas
-            aplicarEstilos();
-            selecionarFundoTematico(evento);
-            
-            // 5. Iniciar Slideshow com os links convertidos/ajustados
-            iniciarSlideshow(urlsArray);
+        function stopRec() {
+            if(mediaRecorder) mediaRecorder.stop();
+            document.getElementById('btnRecStart').style.display = 'inline-flex';
+            document.getElementById('btnRecStop').disabled = true;
+            document.getElementById('recStatus').textContent = "Gravação finalizada.";
+            document.getElementById('recStatus').style.color = "green";
         }
 
-        /**
-         * Gera o link de compartilhamento.
-         */
-        function gerarLink() {
-            const nome = encodeURIComponent(document.getElementById('nomeInput').value);
-            const data = encodeURIComponent(document.getElementById('dataAlvoInput').value);
-            const evento = encodeURIComponent(document.getElementById('eventoInput').value);
-            const mensagem = encodeURIComponent(document.getElementById('mensagemTexto').value);
-            // Adiciona as URLs codificadas
-            const urls = encodeURIComponent(document.getElementById('urlsInput').value);
-
+        // --- GERAÇÃO DE LINK ---
+        function generateLink() {
+            // Pega todos os dados
+            const params = new URLSearchParams();
+            params.set('n', document.getElementById('inputNome').value);
+            params.set('e', document.getElementById('inputEvento').value);
+            params.set('d', document.getElementById('inputData').value);
+            params.set('m', document.getElementById('inputMsg').value);
+            params.set('p', document.getElementById('inputFotos').value); // Photos
+            params.set('bg', document.getElementById('inputBgCard').value);
+            
             // Estilos
-            const fonte = encodeURIComponent(document.getElementById('fonteInput').value);
-            const corTitulo = encodeURIComponent(document.getElementById('corTitulo').value);
-            const corMensagem = encodeURIComponent(document.getElementById('corMensagem').value);
-            const corBorda = encodeURIComponent(document.getElementById('corBorda').value);
-            const corFundoCard = encodeURIComponent(document.getElementById('corFundoCard').value);
-            const corFundoBody = encodeURIComponent(document.getElementById('corFundoBody').value);
-            const elementoPiscar = encodeURIComponent(document.getElementById('elementoPiscar').value);
-            const corPiscar1 = encodeURIComponent(document.getElementById('corPiscar1').value);
-            const corPiscar2 = encodeURIComponent(document.getElementById('corPiscar2').value);
+            params.set('f', document.getElementById('inputFonte').value);
+            params.set('ct', document.getElementById('colorTitle').value);
+            params.set('cb', document.getElementById('colorBorder').value);
+            params.set('cc', document.getElementById('colorBgCard').value);
+            params.set('cp', document.getElementById('colorBgPage').value);
+            
+            // Pisca
+            params.set('pm', document.getElementById('inputPisca').value);
+            params.set('c1', document.getElementById('pisca1').value);
+            params.set('c2', document.getElementById('pisca2').value);
 
+            // Áudio (Prioriza Base64, depois URL)
+            const b64 = document.getElementById('audioBase64Data').value;
+            if(b64) params.set('a64', b64);
+            else params.set('au', document.getElementById('inputUrlAudio').value);
 
-            // Monta a URL base (assume que o arquivo está no index.html ou semelhante)
-            const baseUrl = window.location.href.split('?')[0]; 
-
-            const params = `?nome=${nome}&data=${data}&evento=${evento}&msg=${mensagem}&urls=${urls}` + 
-                           `&ft=${fonte}&ct=${corTitulo}&cm=${corMensagem}&cb=${corBorda}&cfc=${corFundoCard}&cfb=${corFundoBody}` +
-                           `&ep=${elementoPiscar}&cp1=${corPiscar1}&cp2=${corPiscar2}`;
-
-            return baseUrl + params;
-        }
-        
-        /**
-         * Gera o link e prepara a exibição dos botões.
-         */
-        function gerarLinkECompartilhar() {
-             const link = gerarLink();
-             
-             document.getElementById('linkGerado').value = link;
-             document.getElementById('linkContainer').style.display = 'flex';
-             
-             showMessage("Link gerado! Escolha a plataforma para compartilhar.", 4000);
+            const finalUrl = window.location.origin + window.location.pathname + '?' + params.toString();
+            
+            document.getElementById('finalLink').value = finalUrl;
+            document.getElementById('shareArea').style.display = 'block';
+            
+            // Scroll suave até área de share
+            document.getElementById('shareArea').scrollIntoView({behavior: "smooth"});
+            showToast("Link gerado com sucesso! 🎉");
         }
 
-        /**
-         * Compartilha o link no WhatsApp com mensagem formatada.
-         */
-        function compartilharWhatsApp() {
-            const link = document.getElementById('linkGerado').value;
-            const evento = document.getElementById('eventoInput').value;
-            const nome = document.getElementById('nomeInput').value;
+        // --- CARREGAR CARTÃO (VIEW MODE) ---
+        function loadParams() {
+            const p = new URLSearchParams(window.location.search);
+            if(!p.has('n')) return; // Sem parâmetros, modo edição normal
+
+            // Modo Visualização: Esconde Editor
+            document.querySelector('.editor-section').style.display = 'none';
+            document.querySelector('.preview-section').style.flex = '1';
+            document.querySelector('.card-wrapper').style.maxWidth = '100%'; // Ocupa tela toda
+            document.querySelector('.card-wrapper').style.height = '100vh'; // Altura total
+            document.querySelector('.card').style.minHeight = '90vh';
             
-            // Mensagem no formato WhatsApp (usando * para negrito e \n para quebra de linha)
-            const mensagem = 
-                `🥳 Olá! *${nome.toUpperCase()}* te enviou um cartão animado para o evento: *${evento.toUpperCase()}*!\n\n` +
-                `✨ *Clique no link abaixo* e veja a surpresa feita especialmente para você:\n` +
-                `${link}\n\n` +
-                `_Compartilhe esta alegria!_`;
+            // Preenche campos (mesmo escondidos, para lógica funcionar)
+            if(p.get('n')) document.getElementById('inputNome').value = p.get('n');
+            if(p.get('e')) document.getElementById('inputEvento').value = p.get('e');
+            if(p.get('d')) document.getElementById('inputData').value = p.get('d');
+            if(p.get('m')) document.getElementById('inputMsg').value = p.get('m');
+            if(p.get('p')) document.getElementById('inputFotos').value = p.get('p');
+            if(p.get('bg')) document.getElementById('inputBgCard').value = p.get('bg');
+
+            if(p.get('f')) document.getElementById('inputFonte').value = p.get('f');
+            if(p.get('ct')) document.getElementById('colorTitle').value = p.get('ct');
+            if(p.get('cb')) document.getElementById('colorBorder').value = p.get('cb');
+            if(p.get('cc')) document.getElementById('colorBgCard').value = p.get('cc');
+            if(p.get('cp')) document.getElementById('colorBgPage').value = p.get('cp');
             
-            // Link de intenção para WhatsApp
-            const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensagem)}`;
+            if(p.get('pm')) document.getElementById('inputPisca').value = p.get('pm');
+            if(p.get('c1')) document.getElementById('pisca1').value = p.get('c1');
+            if(p.get('c2')) document.getElementById('pisca2').value = p.get('c2');
+
+            if(p.get('a64')) document.getElementById('audioBase64Data').value = p.get('a64');
+            if(p.get('au')) document.getElementById('inputUrlAudio').value = p.get('au');
+
+            // Atualiza visual
+            updateCard();
+
+            // Auto-Play Audio
+            const audioB64 = p.get('a64');
+            const audioUrl = p.get('au');
+            const player = document.getElementById('realAudioElement');
             
-            window.open(whatsappUrl, '_blank');
+            if(audioB64 || audioUrl) {
+                player.src = audioB64 || audioUrl;
+                // Tenta tocar (navegadores bloqueiam autoplay sem interação, então mostramos o botão)
+                document.getElementById('cardAudioPlayer').onclick = () => {
+                    player.play();
+                    showToast("Tocando áudio... 🎵");
+                };
+                showToast("Toque no ícone de som para ouvir! 🔊");
+            }
         }
 
-        /**
-         * Compartilha o link no Facebook.
-         */
-        function compartilharFacebook() {
-            const link = document.getElementById('linkGerado').value;
-            const evento = document.getElementById('eventoInput').value;
-            const nome = document.getElementById('nomeInput').value;
-
-            // O Facebook Share Link permite que o usuário adicione uma mensagem antes de publicar.
-            const quoteText = `Confira o cartão animado que ${nome} criou para o evento "${evento.toUpperCase()}"! É lindo!`;
-            
-            // Link de intenção para Facebook Share (adicionamos a URL e uma pequena citação)
-            const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}&quote=${encodeURIComponent(quoteText)}`;
-            
-            window.open(facebookUrl, '_blank');
+        // --- COMPARTILHAR ---
+        function copyLink() {
+            const link = document.getElementById('finalLink');
+            link.select();
+            link.setSelectionRange(0, 99999); /* Para mobile */
+            navigator.clipboard.writeText(link.value);
+            showToast("Link copiado!");
         }
 
-        /**
-         * Copia o link gerado para a área de transferência (usado no botão COPIAR e no botão Instagram).
-         */
-        function copiarLink() {
-            const linkInput = document.getElementById('linkGerado');
-            linkInput.select();
-            linkInput.setSelectionRange(0, 99999); // Para mobile
+        function share(platform) {
+            const link = encodeURIComponent(document.getElementById('finalLink').value);
+            const msg = encodeURIComponent(`Veja o cartão que fiz para você! ✨`);
             
-            navigator.clipboard.writeText(linkInput.value)
-                .then(() => {
-                    // Mensagem específica para o Instagram
-                    showMessage("✅ LINK COPIADO! Cole o link diretamente na sua Bio do Instagram ou no Sticker de Link dos Stories!", 4000);
-                })
-                .catch(err => {
-                    console.error('Erro ao copiar: ', err);
-                    showMessage("❌ Erro ao copiar. Copie manualmente o link gerado acima.", 3000);
-                });
+            if(platform === 'wa') window.open(`https://wa.me/?text=${msg}%20${link}`);
+            if(platform === 'fb') window.open(`https://www.facebook.com/sharer/sharer.php?u=${link}`);
         }
 
+        // --- UI UTILS ---
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 3000);
+        }
 
-        /**
-         * Decodifica os parâmetros da URL e aplica ao formulário/cartão.
-         */
-        function decodificarParametros() {
-            const params = new URLSearchParams(window.location.search);
-            let hasParams = params.size > 0;
-            let dataParam = params.get('data');
-
-            // 1. Tenta definir a data a partir dos parâmetros
-            if (dataParam) {
-                document.getElementById('dataAlvoInput').value = dataParam;
-            } else {
-                 // 2. Se não houver data nos parâmetros OU não houver parâmetros (modo criador), 
-                 // define a data de Natal do próximo ano como padrão.
-                const hoje = new Date();
-                let natal = new Date(hoje.getFullYear(), 11, 25);
-                
-                // Se o natal já passou OU a data não está no formato YYYY-MM-DD (para evitar bugs de fuso)
-                if (hoje > natal || !hasParams) {
-                    if (hoje > natal && !hasParams) {
-                         // Se for modo criador e o Natal atual já passou, define o próximo ano
-                         natal.setFullYear(hoje.getFullYear() + 1);
-                    } else if (!hasParams) {
-                         // Se for modo criador, usa o Natal deste ano
-                         natal = new Date(hoje.getFullYear(), 11, 25);
-                    }
+        // --- MODAL NOVIDADES ---
+        function checkNews() {
+            if(localStorage.getItem('newsVersion') == APP_VERSION) return;
+            
+            const modal = document.getElementById('newsModal');
+            modal.style.display = 'flex';
+            
+            let secs = 10;
+            const timer = setInterval(() => {
+                secs--;
+                document.getElementById('modalTimer').textContent = secs + 's';
+                if(secs <= 0) {
+                    clearInterval(timer);
+                    closeModal();
                 }
-                
-                // Formata para YYYY-MM-DD
-                const dataFormatada = natal.toISOString().split('T')[0];
-                document.getElementById('dataAlvoInput').value = dataFormatada;
-            }
-
-            // Define os demais valores do formulário
-            document.getElementById('nomeInput').value = params.get('nome') || 'Seu Nome';
-            document.getElementById('eventoInput').value = params.get('evento') || 'FELIZ NATAL';
-            document.getElementById('mensagemTexto').value = params.get('msg') || 'Que Deus te abençoe com muita paz e alegria neste dia!';
-            document.getElementById('urlsInput').value = params.get('urls') || '';
-            
-            // Define os estilos do formulário
-            document.getElementById('fonteInput').value = params.get('ft') || 'Inter, sans-serif';
-            document.getElementById('corTitulo').value = params.get('ct') || '#004d99';
-            document.getElementById('corMensagem').value = params.get('cm') || '#374151';
-            document.getElementById('corBorda').value = params.get('cb') || '#c0c0c0';
-            document.getElementById('corFundoCard').value = params.get('cfc') || '#ffffff';
-            
-            const corFundoBodyValue = params.get('cfb') || '#f0f4f7';
-            document.getElementById('corFundoBody').value = corFundoBodyValue; 
-            
-            document.getElementById('elementoPiscar').value = params.get('ep') || 'none';
-            document.getElementById('corPiscar1').value = params.get('cp1') || '#ff0000';
-            document.getElementById('corPiscar2').value = params.get('cp2') || '#00ff00';
-            
-            // Sincroniza o select de fundo com o valor carregado
-            try {
-                if (document.getElementById('fundoBodySelect').options) {
-                    let found = false;
-                    for (let i = 0; i < document.getElementById('fundoBodySelect').options.length; i++) {
-                        if (document.getElementById('fundoBodySelect').options[i].value === corFundoBodyValue) {
-                            document.getElementById('fundoBodySelect').value = corFundoBodyValue;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        document.getElementById('fundoBodySelect').value = document.getElementById('fundoBodySelect').options[0].value;
-                    }
-                }
-            } catch (e) {
-                console.warn("Erro ao sincronizar select de fundo:", e);
-            }
-
-            // Se houver qualquer parâmetro na URL, assumimos o modo de visualização.
-            if (hasParams) {
-                document.body.classList.add('modo-visualizacao');
-                showMessage("Modo de Visualização Ativado!", 2000);
-            }
-
-            // 3. ATIVAÇÃO CRÍTICA: Atualiza o cartão com os novos valores e inicia a contagem
-            atualizarAlvo();
+            }, 1000);
+        }
+        function closeModal() {
+            document.getElementById('newsModal').style.display = 'none';
+            localStorage.setItem('newsVersion', APP_VERSION);
         }
 
-        // Inicializa o cartão e exibe o pop-up
-        window.onload = () => {
-             decodificarParametros();
-             exibirNovidadesAposAtraso();
-        };
     </script>
 </body>
 </html>
