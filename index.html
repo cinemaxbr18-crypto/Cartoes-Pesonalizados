@@ -8,14 +8,13 @@
     <style>
         /* --- IMPORTAÇÃO DE FONTES --- */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;700&display=swap');
-        /* Fontes do Cartão */
         @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Playfair+Display:wght@700&family=Roboto:wght@700&family=Monoton&family=Chakra+Petch:wght@700&family=Black+Ops+One&family=VT323&display=swap');
 
-        /* --- VARIÁVEIS (Visual Limpo e Fixo) --- */
+        /* --- VARIÁVEIS --- */
         :root {
-            --cor-app-fundo: #F2F4F8; /* Cinza azulado muito suave */
+            --cor-app-fundo: #F2F4F8; 
             --cor-app-card: #FFFFFF;
-            --cor-destaque: #6C5CE7; /* Roxo Moderno */
+            --cor-destaque: #6C5CE7; 
             --cor-destaque-hover: #5b4cc4;
             --cor-texto: #2D3436;
             --cor-texto-leve: #636E72;
@@ -25,310 +24,117 @@
             --radius-card: 16px;
         }
 
-        /* Reset Básico */
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--cor-app-fundo);
             color: var(--cor-texto);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center;
             min-height: 100vh;
         }
 
-        /* --- CABEÇALHO DO APP --- */
         header {
-            width: 100%;
-            background: white;
-            padding: 15px 20px;
+            width: 100%; background: white; padding: 15px 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            position: sticky; top: 0; z-index: 100;
+            display: flex; justify-content: center; align-items: center;
         }
-        
         header h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.2rem;
-            color: var(--cor-destaque);
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-family: 'Poppins', sans-serif; font-size: 1.2rem; color: var(--cor-destaque); margin: 0;
         }
 
-        /* --- LAYOUT PRINCIPAL --- */
         .app-container {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            max-width: 1000px;
-            padding: 20px;
-            gap: 30px;
+            display: flex; flex-direction: column; width: 100%; max-width: 1000px;
+            padding: 20px; gap: 30px;
         }
-
-        /* Layout Responsivo: Lado a Lado no PC */
         @media (min-width: 850px) {
-            .app-container {
-                flex-direction: row;
-                align-items: flex-start;
-            }
-            .preview-section {
-                flex: 1;
-                position: sticky;
-                top: 90px;
-            }
-            .editor-section {
-                flex: 1.2;
-            }
+            .app-container { flex-direction: row; align-items: flex-start; }
+            .preview-section { flex: 1; position: sticky; top: 90px; }
+            .editor-section { flex: 1.2; }
         }
 
-        /* --- ÁREA DE PRÉ-VISUALIZAÇÃO (O Cartão) --- */
-        .card-wrapper {
-            width: 100%;
-            max-width: 420px;
-            margin: 0 auto;
-            perspective: 1000px;
-        }
-
+        /* --- PREVIEW --- */
+        .card-wrapper { width: 100%; max-width: 420px; margin: 0 auto; perspective: 1000px; }
         .card {
-            background-color: #ffffff;
-            border-radius: var(--radius-card);
-            box-shadow: var(--sombra-flutuante);
-            padding: 1.5rem;
-            min-height: 500px;
-            display: flex;
-            flex-direction: column;
-            text-align: center;
-            position: relative;
-            border-bottom: 8px solid #dfe6e9; /* Borda inferior estética */
-            transition: all 0.3s ease;
-            
-            /* Imagem de Fundo do Cartão */
-            background-size: cover;
-            background-position: center;
-            background-blend-mode: overlay;
+            background-color: #ffffff; border-radius: var(--radius-card);
+            box-shadow: var(--sombra-flutuante); padding: 1.5rem; min-height: 500px;
+            display: flex; flex-direction: column; text-align: center; position: relative;
+            border-bottom: 8px solid #dfe6e9; transition: all 0.3s ease;
+            background-size: cover; background-position: center; background-blend-mode: overlay;
         }
 
-        /* Elementos Internos do Cartão */
-        .card-header { margin-bottom: 1rem; }
-        
-        .user-greeting {
-            font-size: 1.1rem;
-            color: #636E72;
-            margin-bottom: 5px;
-        }
-        
-        .user-name {
-            font-weight: 800;
-            color: var(--cor-destaque);
-            font-size: 1.4rem;
-            display: block;
-        }
+        .user-greeting { font-size: 1.1rem; color: #636E72; margin-bottom: 5px; }
+        .user-name { font-weight: 800; color: var(--cor-destaque); font-size: 1.4rem; display: block; }
+        .event-title { font-size: 2.5rem; line-height: 1.1; color: #0984e3; margin: 10px 0; transition: all 0.3s; }
+        .countdown-box { background: #f1f2f6; padding: 10px; border-radius: 10px; font-weight: 600; color: #2d3436; margin: 15px 0; font-size: 0.95rem; }
+        .message-body { font-size: 1.05rem; line-height: 1.5; color: #2d3436; white-space: pre-wrap; border-top: 1px solid #eee; padding-top: 15px; margin-top: 10px; }
 
-        .event-title {
-            font-size: 2.5rem;
-            line-height: 1.1;
-            color: #0984e3;
-            margin: 10px 0;
-            transition: all 0.3s;
-            /* Fonte padrão será setada via JS */
-        }
-
-        .countdown-box {
-            background: #f1f2f6;
-            padding: 10px;
-            border-radius: 10px;
-            font-weight: 600;
-            color: #2d3436;
-            margin: 15px 0;
-            font-size: 0.95rem;
-        }
-
-        .message-body {
-            font-size: 1.05rem;
-            line-height: 1.5;
-            color: #2d3436;
-            white-space: pre-wrap;
-            border-top: 1px solid #eee;
-            padding-top: 15px;
-            margin-top: 10px;
-        }
-
-        /* Galeria de Fotos (Maximizado) */
         .photo-frame {
-            margin-top: 20px;
-            width: 100%;
-            padding-top: 125%; /* Proporção vertical alta (Retrato) */
-            position: relative;
-            background: #f5f6fa;
-            border-radius: 12px;
-            overflow: hidden;
+            margin-top: 20px; width: 100%; padding-top: 125%; position: relative;
+            background: #f5f6fa; border-radius: 12px; overflow: hidden;
         }
-        
         .photo-img {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: contain;
-            opacity: 0;
-            transition: opacity 1s ease;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: contain; opacity: 0; transition: opacity 1s ease;
         }
         .photo-img.active { opacity: 1; }
 
-        /* Player de Áudio Customizado */
         .audio-player-ui {
-            margin-top: 15px;
-            background: #fff;
-            border: 1px solid #eee;
-            border-radius: 50px;
-            padding: 5px 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-top: 15px; background: #fff; border: 1px solid #eee; border-radius: 50px;
+            padding: 5px 15px; display: flex; align-items: center; justify-content: center;
+            gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; transition: background 0.2s;
         }
+        .audio-player-ui:active { transform: scale(0.98); background: #f0f0f0; }
         .audio-icon { font-size: 1.2rem; }
         .audio-text { font-size: 0.8rem; color: #636E72; }
 
-        /* --- ÁREA DE EDIÇÃO (ABAS) --- */
-        .editor-panel {
-            background: white;
-            border-radius: var(--radius-app);
-            box-shadow: var(--sombra-flutuante);
-            overflow: hidden;
-        }
-
-        /* Barra de Abas */
-        .tabs-header {
-            display: flex;
-            background: #fff;
-            border-bottom: 1px solid #eee;
-            overflow-x: auto; /* Rolagem no celular se precisar */
-        }
-        
+        /* --- EDITOR (ABAS) --- */
+        .editor-panel { background: white; border-radius: var(--radius-app); box-shadow: var(--sombra-flutuante); overflow: hidden; }
+        .tabs-header { display: flex; background: #fff; border-bottom: 1px solid #eee; overflow-x: auto; }
         .tab-btn {
-            flex: 1;
-            padding: 15px 10px;
-            border: none;
-            background: none;
-            font-weight: 600;
-            color: var(--cor-texto-leve);
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-            border-bottom: 3px solid transparent;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.85rem;
+            flex: 1; padding: 15px 10px; border: none; background: none; font-weight: 600;
+            color: var(--cor-texto-leve); cursor: pointer; white-space: nowrap; transition: all 0.2s;
+            border-bottom: 3px solid transparent; font-size: 0.85rem;
         }
-        
-        .tab-btn i { font-size: 1.2rem; } /* Ícones placeholder */
-        
-        .tab-btn.active {
-            color: var(--cor-destaque);
-            border-bottom-color: var(--cor-destaque);
-            background-color: #fdfdff;
-        }
+        .tab-btn.active { color: var(--cor-destaque); border-bottom-color: var(--cor-destaque); background-color: #fdfdff; }
 
-        /* Conteúdo das Abas */
-        .tab-content {
-            padding: 25px;
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
+        .tab-content { padding: 25px; display: none; animation: fadeIn 0.3s ease; }
         .tab-content.active { display: block; }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Inputs e Controles */
         .input-group { margin-bottom: 20px; }
-        .input-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            color: var(--cor-texto);
-        }
-
+        .input-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; color: var(--cor-texto); }
         .styled-input, .styled-select, .styled-textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #dfe6e9;
-            border-radius: 10px;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            transition: border-color 0.2s;
-            background: #fcfcfc;
+            width: 100%; padding: 12px; border: 1px solid #dfe6e9; border-radius: 10px;
+            font-family: 'Inter', sans-serif; font-size: 1rem; transition: border-color 0.2s; background: #fcfcfc;
         }
         .styled-input:focus { border-color: var(--cor-destaque); background: white; }
 
-        /* Controles de Cor (Grid) */
-        .color-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 10px;
-        }
-        
-        input[type="color"] {
-            width: 100%; height: 45px;
-            border: none; border-radius: 8px;
-            cursor: pointer; padding: 0;
-            background: none;
-        }
+        .color-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
+        input[type="color"] { width: 100%; height: 45px; border: none; border-radius: 8px; cursor: pointer; padding: 0; background: none; }
 
-        /* Botões de Ação */
         .action-btn {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
-            margin-top: 10px;
+            width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: 700; font-size: 1rem;
+            cursor: pointer; transition: transform 0.1s, opacity 0.2s; margin-top: 10px;
         }
-        .btn-primary { background: var(--cor-destaque); color: white; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3); }
-        .btn-success { background: #00b894; color: white; box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3); }
-        
+        .btn-primary { background: var(--cor-destaque); color: white; }
+        .btn-success { background: #00b894; color: white; }
+        .btn-help { background: #fab1a0; color: #2d3436; }
+        .btn-loading { background: #b2bec3; cursor: wait; pointer-events: none; }
         .action-btn:active { transform: scale(0.98); }
 
-        /* --- ÁUDIO SELEÇÃO VISUAL --- */
-        .audio-options {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
+        .audio-options { display: flex; gap: 10px; margin-bottom: 15px; }
         .audio-opt-btn {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #eee;
-            background: #fff;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            color: var(--cor-texto-leve);
+            flex: 1; padding: 10px; border: 1px solid #eee; background: #fff; border-radius: 10px;
+            font-size: 0.8rem; cursor: pointer; color: var(--cor-texto-leve);
         }
-        .audio-opt-btn.active {
-            background: var(--cor-destaque);
-            color: white;
-            border-color: var(--cor-destaque);
-        }
+        .audio-opt-btn.active { background: var(--cor-destaque); color: white; border-color: var(--cor-destaque); }
         .audio-input-container { display: none; margin-top: 10px; padding: 15px; background: #f8f9fa; border-radius: 10px; }
         .audio-input-container.visible { display: block; }
 
-        /* Gravação de Áudio */
+        /* Gravação */
         .record-controls { display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 10px;}
         .rec-btn { width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
         .rec-start { background: #ff7675; color: white; }
@@ -336,67 +142,40 @@
         .rec-status { text-align: center; font-size: 0.9rem; color: #e17055; margin-top: 5px; font-weight: 600; }
 
         /* Link Gerado */
-        .share-area {
-            background: #f0fff4;
-            border: 1px dashed #00b894;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            margin-top: 20px;
-            display: none;
-        }
-        .social-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .social-btn {
-            padding: 10px; border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; font-size: 0.9rem;
-        }
+        .share-area { background: #f0fff4; border: 1px dashed #00b894; padding: 20px; border-radius: 12px; text-align: center; margin-top: 20px; display: none; }
+        .social-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .social-btn { padding: 10px; border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
 
-        /* --- ANIMAÇÕES ESPECIAIS --- */
+        /* Ajuda */
+        .help-box { background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        .help-link { color: #d35400; font-weight: 700; text-decoration: none; border-bottom: 1px dashed #d35400; }
+
+        /* Animações */
         .blinking-text { animation: blinkColor 1.5s infinite; }
         .blinking-border { animation: blinkBorder 1.5s infinite; }
-        
         @keyframes blinkColor { 0%, 100% { color: var(--cor-pisca-1); } 50% { color: var(--cor-pisca-2); } }
         @keyframes blinkBorder { 0%, 100% { border-bottom-color: var(--cor-pisca-1); } 50% { border-bottom-color: var(--cor-pisca-2); } }
 
-        /* POP-UP SIMPLES */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 2000;
-            display: none; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
-        }
-        .modal-box {
-            background: white; padding: 30px; width: 90%; max-width: 400px;
-            border-radius: 20px; text-align: center; position: relative;
-            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #aaa; }
-        .timer-badge { background: var(--cor-destaque); color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; display: inline-block; margin-top: 10px; }
-
-        /* Mensagem Flutuante */
         .toast-msg {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             background: #2d3436; color: white; padding: 12px 24px; border-radius: 30px;
             font-size: 0.9rem; z-index: 3000; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
+
+        /* Barra de Progresso para Audio Grande */
+        .progress-container { width: 100%; background-color: #e0e0e0; border-radius: 10px; margin-top: 10px; display: none; }
+        .progress-bar { width: 0%; height: 10px; background-color: var(--cor-destaque); border-radius: 10px; transition: width 0.3s; }
     </style>
 </head>
 <body>
 
-    <!-- HEADER -->
     <header>
         <h1>✨ Criador de Cartões</h1>
     </header>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <div class="app-container">
         
-        <!-- SEÇÃO ESQUERDA: PREVIEW -->
+        <!-- PREVIEW -->
         <div class="preview-section">
             <div class="card-wrapper">
                 <div class="card" id="liveCard">
@@ -407,47 +186,37 @@
                         </div>
                         <div class="event-title" id="cardTitle">FELIZ NATAL</div>
                     </div>
+                    <div class="countdown-box" id="cardCountdown">Calculando data...</div>
+                    <div class="message-body" id="cardMessage">Que a magia deste momento ilumine sua vida com alegria e paz!</div>
 
-                    <div class="countdown-box" id="cardCountdown">
-                        Calculando data...
-                    </div>
-
-                    <div class="message-body" id="cardMessage">
-                        Que a magia deste momento ilumine sua vida com alegria e paz!
-                    </div>
-
-                    <!-- Player de Áudio Visual -->
-                    <div id="cardAudioPlayer" class="audio-player-ui" style="display:none;">
+                    <!-- Player -->
+                    <div id="cardAudioPlayer" class="audio-player-ui" style="display:none;" onclick="playAudio()">
                         <span class="audio-icon">🔊</span>
-                        <span class="audio-text">Mensagem de Áudio</span>
+                        <span class="audio-text">Tocar Música / Mensagem</span>
                         <audio id="realAudioElement" style="display:none;"></audio>
                     </div>
 
                     <!-- Galeria -->
-                    <div class="photo-frame" id="cardGallery" style="display:none;">
-                        <!-- Imagens injetadas via JS -->
-                    </div>
+                    <div class="photo-frame" id="cardGallery" style="display:none;"></div>
                 </div>
             </div>
-            <div style="text-align: center; margin-top: 15px; font-size: 0.8rem; color: #aaa;">
-                Pré-visualização ao vivo
-            </div>
+            <div style="text-align: center; margin-top: 15px; font-size: 0.8rem; color: #aaa;">Pré-visualização ao vivo</div>
         </div>
 
-        <!-- SEÇÃO DIREITA: EDITOR (ABAS) -->
+        <!-- EDITOR -->
         <div class="editor-section">
             <div class="editor-panel">
                 
-                <!-- Cabeçalho das Abas -->
                 <div class="tabs-header">
                     <button class="tab-btn active" onclick="openTab('tabTexto')">📝 Texto</button>
                     <button class="tab-btn" onclick="openTab('tabMidia')">🖼️ Mídia</button>
                     <button class="tab-btn" onclick="openTab('tabAudio')">🎵 Áudio</button>
                     <button class="tab-btn" onclick="openTab('tabEstilo')">🎨 Estilo</button>
+                    <button class="tab-btn" style="color: #e67e22;" onclick="openTab('tabHelp')">❓ Ajuda</button>
                     <button class="tab-btn" onclick="openTab('tabFinal')">🚀 Enviar</button>
                 </div>
 
-                <!-- CONTEÚDO: TEXTO -->
+                <!-- TEXTO -->
                 <div id="tabTexto" class="tab-content active">
                     <div class="input-group">
                         <label>Seu Nome (Remetente):</label>
@@ -468,14 +237,12 @@
                     <button class="action-btn btn-primary" onclick="openTab('tabMidia')">Próximo: Fotos &rarr;</button>
                 </div>
 
-                <!-- CONTEÚDO: MÍDIA -->
+                <!-- MÍDIA -->
                 <div id="tabMidia" class="tab-content">
                     <div class="input-group">
                         <label>Links das Fotos (Separe por ; ):</label>
-                        <textarea class="styled-textarea" id="inputFotos" rows="3" placeholder="Cole links do Google Drive ou Internet..." oninput="formatUrls(); updateCard()"></textarea>
-                        <small style="color:#888; display:block; margin-top:5px;">O sistema ajusta os links automaticamente.</small>
+                        <textarea class="styled-textarea" id="inputFotos" rows="3" placeholder="Cole links..." oninput="formatUrls(); updateCard()"></textarea>
                     </div>
-                    
                     <div class="input-group">
                         <label>Imagem de Fundo do Cartão (URL):</label>
                         <input type="text" class="styled-input" id="inputBgCard" placeholder="http://..." oninput="updateCard()">
@@ -483,25 +250,26 @@
                     <button class="action-btn btn-primary" onclick="openTab('tabAudio')">Próximo: Áudio &rarr;</button>
                 </div>
 
-                <!-- CONTEÚDO: ÁUDIO -->
+                <!-- ÁUDIO -->
                 <div id="tabAudio" class="tab-content">
-                    <label style="display:block; margin-bottom:10px; font-weight:600;">Escolha a fonte do áudio:</label>
+                    <label style="display:block; margin-bottom:10px; font-weight:600;">Fonte do Áudio (Até 6min):</label>
                     
                     <div class="audio-options">
-                        <button class="audio-opt-btn active" onclick="showAudioInput('file')">📂 Arquivo</button>
-                        <button class="audio-opt-btn" onclick="showAudioInput('mic')">🎤 Gravar</button>
+                        <button class="audio-opt-btn active" onclick="showAudioInput('file')">📂 Arquivo MP3</button>
+                        <button class="audio-opt-btn" onclick="showAudioInput('mic')">🎤 Gravar Voz</button>
                         <button class="audio-opt-btn" onclick="showAudioInput('url')">🔗 Link</button>
                     </div>
 
-                    <!-- Input Arquivo -->
+                    <!-- Input Arquivo (Suporte a Chunking) -->
                     <div id="audioFileArea" class="audio-input-container visible">
-                        <label>Selecione MP3 do celular/PC:</label>
+                        <label>Selecione MP3 (Suporta arquivos maiores!):</label>
                         <input type="file" id="inputFileAudio" accept="audio/*" class="styled-input" onchange="handleFileUpload(this)">
+                        <small style="color:#27ae60; display:block; margin-top:5px;">Suporte a Alta Qualidade (até ~6MB)</small>
                     </div>
 
                     <!-- Input Gravação -->
                     <div id="audioMicArea" class="audio-input-container">
-                        <label>Gravar Mensagem de Voz:</label>
+                        <label>Gravar Mensagem:</label>
                         <div class="record-controls">
                             <button class="rec-btn rec-start" id="btnRecStart" onclick="startRec()">●</button>
                             <button class="rec-btn rec-stop" id="btnRecStop" onclick="stopRec()" disabled>■</button>
@@ -511,7 +279,7 @@
 
                     <!-- Input URL -->
                     <div id="audioUrlArea" class="audio-input-container">
-                        <label>Link direto de Áudio (MP3):</label>
+                        <label>Link direto de Áudio:</label>
                         <input type="text" class="styled-input" id="inputUrlAudio" placeholder="http://site.com/musica.mp3" oninput="updateCard()">
                     </div>
 
@@ -519,42 +287,30 @@
                     <button class="action-btn btn-primary" style="margin-top:20px;" onclick="openTab('tabEstilo')">Próximo: Estilo &rarr;</button>
                 </div>
 
-                <!-- CONTEÚDO: ESTILO -->
+                <!-- ESTILO -->
                 <div id="tabEstilo" class="tab-content">
                     <div class="input-group">
-                        <label>Fonte do Título:</label>
+                        <label>Fonte:</label>
                         <select class="styled-select" id="inputFonte" onchange="updateCard()">
-                            <option value="'Pacifico', cursive">Pacifico (Manuscrita)</option>
-                            <option value="'Playfair Display', serif">Playfair (Elegante)</option>
-                            <option value="'Roboto', sans-serif">Roboto (Moderna)</option>
-                            <option value="'Monoton', cursive">Monoton (Neon)</option>
-                            <option value="'Chakra Petch', sans-serif">Chakra (Futurista)</option>
-                            <option value="'Black Ops One', cursive">Black Ops (Forte)</option>
-                            <option value="'VT323', monospace">Pixel (Retro)</option>
+                            <option value="'Pacifico', cursive">Pacifico</option>
+                            <option value="'Playfair Display', serif">Playfair</option>
+                            <option value="'Roboto', sans-serif">Roboto</option>
+                            <option value="'Monoton', cursive">Monoton</option>
+                            <option value="'Chakra Petch', sans-serif">Chakra</option>
+                            <option value="'Black Ops One', cursive">Black Ops</option>
+                            <option value="'VT323', monospace">Pixel</option>
                         </select>
                     </div>
 
                     <div class="color-grid">
-                        <div>
-                            <label style="font-size:0.8rem;">Título</label>
-                            <input type="color" id="colorTitle" value="#0984e3" oninput="updateCard()">
-                        </div>
-                        <div>
-                            <label style="font-size:0.8rem;">Borda</label>
-                            <input type="color" id="colorBorder" value="#dfe6e9" oninput="updateCard()">
-                        </div>
-                        <div>
-                            <label style="font-size:0.8rem;">Fundo Card</label>
-                            <input type="color" id="colorBgCard" value="#ffffff" oninput="updateCard()">
-                        </div>
-                        <div>
-                            <label style="font-size:0.8rem;">Fundo Página</label>
-                            <input type="color" id="colorBgPage" value="#F2F4F8" oninput="updateCard()">
-                        </div>
+                        <div><label style="font-size:0.8rem;">Título</label><input type="color" id="colorTitle" value="#0984e3" oninput="updateCard()"></div>
+                        <div><label style="font-size:0.8rem;">Borda</label><input type="color" id="colorBorder" value="#dfe6e9" oninput="updateCard()"></div>
+                        <div><label style="font-size:0.8rem;">Fundo Card</label><input type="color" id="colorBgCard" value="#ffffff" oninput="updateCard()"></div>
+                        <div><label style="font-size:0.8rem;">Fundo Pág</label><input type="color" id="colorBgPage" value="#F2F4F8" oninput="updateCard()"></div>
                     </div>
                     
                     <div class="input-group" style="margin-top:20px;">
-                        <label>Animação Pisca-Pisca:</label>
+                        <label>Pisca-Pisca:</label>
                         <select class="styled-select" id="inputPisca" onchange="updateCard()">
                             <option value="none">Sem Animação</option>
                             <option value="titulo">Título Piscando</option>
@@ -565,22 +321,45 @@
                             <input type="color" id="pisca2" value="#55efc4">
                         </div>
                     </div>
-
                     <button class="action-btn btn-success" onclick="openTab('tabFinal')">Finalizar &rarr;</button>
                 </div>
 
-                <!-- CONTEÚDO: FINALIZAR -->
+                <!-- AJUDA (NOVA ABA) -->
+                <div id="tabHelp" class="tab-content">
+                    <h3>❓ Central de Ajuda</h3>
+                    
+                    <div class="help-box">
+                        <strong>📸 Problemas com Imagens?</strong>
+                        <p>Se suas fotos do Drive ou de outros sites não aparecem, você precisa do "Link Direto".</p>
+                        <a href="https://cinemaxbr18-crypto.github.io/guiar-de-imagens/" target="_blank" class="help-link">
+                            👉 Clique aqui para ver o Guia de Imagens
+                        </a>
+                    </div>
+
+                    <div class="help-box" style="background: #e8f6ef; border-color: #a3e4d7;">
+                        <strong>🎵 Sobre Áudio Longo</strong>
+                        <p>Agora você pode colocar músicas de até <strong>6 minutos</strong>! O sistema divide o arquivo automaticamente para caber no cartão. Basta selecionar "Arquivo MP3" na aba Áudio.</p>
+                    </div>
+                </div>
+
+                <!-- FINALIZAR -->
                 <div id="tabFinal" class="tab-content">
                     <div style="text-align:center; margin-bottom:20px;">
                         <h3>Tudo pronto?</h3>
                         <p>Clique abaixo para criar seu link mágico.</p>
                     </div>
-                    <button class="action-btn btn-success" onclick="generateLink()">✨ GERAR CARTÃO AGORA</button>
+                    
+                    <!-- Barra de Progresso para Upload -->
+                    <div id="uploadProgress" class="progress-container">
+                        <div id="uploadBar" class="progress-bar"></div>
+                        <div id="uploadText" style="text-align:center; font-size:0.8rem; margin-top:5px; color:#666;">Enviando áudio...</div>
+                    </div>
+
+                    <button class="action-btn btn-success" id="btnGenerate" onclick="saveAndGenerate()">✨ GERAR CARTÃO AGORA</button>
 
                     <div class="share-area" id="shareArea">
-                        <label>Seu Link:</label>
+                        <label>Seu Link Curto:</label>
                         <input type="text" class="styled-input" id="finalLink" readonly onclick="this.select()">
-                        
                         <div class="social-grid">
                             <button class="social-btn" style="background:#25D366;" onclick="share('wa')">WhatsApp</button>
                             <button class="social-btn" style="background:#1877F2;" onclick="share('fb')">Facebook</button>
@@ -594,38 +373,209 @@
         </div>
     </div>
 
-    <!-- Modal de Novidades -->
-    <div class="modal-overlay" id="newsModal">
-        <div class="modal-box">
-            <span class="close-modal" onclick="closeModal()">×</span>
-            <div style="font-size:2rem;">🎁</div>
-            <h2>Novidades!</h2>
-            <p>Agora você pode gravar áudio, usar abas organizadas e criar cartões incríveis em qualquer dispositivo.</p>
-            <a href="novidades.html" target="_blank" class="action-btn btn-primary" style="display:inline-block; text-decoration:none; margin-top:10px;" onclick="closeModal()">Ver Detalhes</a>
-            <br>
-            <span class="timer-badge" id="modalTimer">10s</span>
-        </div>
-    </div>
-
     <!-- Toast de Mensagem -->
     <div class="toast-msg" id="toast">Mensagem Aqui</div>
 
     <style id="dynamicStyles"></style>
 
-    <script>
-        // --- ESTADO DO APP ---
-        let mediaRecorder;
-        let audioChunks = [];
-        const APP_VERSION = 12;
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // --- INICIALIZAÇÃO ---
+        let db, auth, isFirebaseReady = false;
+        const APP_ID = window.__app_id || 'default';
+
+        try {
+            const firebaseConfig = JSON.parse(window.__firebase_config || '{}');
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            isFirebaseReady = true;
+            signInAnonymously(auth).catch(e => console.error("Auth Error:", e));
+        } catch (e) { console.warn("Firebase error", e); }
+
+        window.saveAndGenerate = async function() {
+            const btn = document.getElementById('btnGenerate');
+            const progContainer = document.getElementById('uploadProgress');
+            const progBar = document.getElementById('uploadBar');
+            const progText = document.getElementById('uploadText');
+
+            btn.textContent = "⏳ Processando...";
+            btn.classList.add('btn-loading');
+            progContainer.style.display = 'none';
+
+            const audioB64 = document.getElementById('audioBase64Data').value;
+            
+            // --- DADOS BÁSICOS ---
+            let cardData = {
+                n: document.getElementById('inputNome').value,
+                e: document.getElementById('inputEvento').value,
+                d: document.getElementById('inputData').value,
+                m: document.getElementById('inputMsg').value,
+                p: document.getElementById('inputFotos').value,
+                bg: document.getElementById('inputBgCard').value,
+                f: document.getElementById('inputFonte').value,
+                ct: document.getElementById('colorTitle').value,
+                cb: document.getElementById('colorBorder').value,
+                cc: document.getElementById('colorBgCard').value,
+                cp: document.getElementById('colorBgPage').value,
+                pm: document.getElementById('inputPisca').value,
+                c1: document.getElementById('pisca1').value,
+                c2: document.getElementById('pisca2').value,
+                au: document.getElementById('inputUrlAudio').value,
+                timestamp: new Date()
+            };
+
+            try {
+                if (!isFirebaseReady) throw new Error("Serviço indisponível");
+
+                // --- LÓGICA DE UPLOAD DE ÁUDIO (CHUNKING) ---
+                if (audioB64 && audioB64.length > 500000) { // Se maior que 500KB
+                    progContainer.style.display = 'block';
+                    progText.textContent = "Dividindo arquivo de áudio...";
+                    
+                    // Primeiro cria o doc do cartão (vazio de áudio por enquanto)
+                    const docRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'cards'), { ...cardData, hasChunks: true });
+                    const cardId = docRef.id;
+
+                    // Divide e Salva Chunks
+                    const CHUNK_SIZE = 800000; // ~800KB (Seguro para Firestore 1MB limit)
+                    const totalChunks = Math.ceil(audioB64.length / CHUNK_SIZE);
+                    
+                    for (let i = 0; i < totalChunks; i++) {
+                        const chunk = audioB64.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+                        await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'audio_chunks'), {
+                            cardId: cardId,
+                            index: i,
+                            data: chunk
+                        });
+                        
+                        // Atualiza UI
+                        const percent = Math.round(((i + 1) / totalChunks) * 100);
+                        progBar.style.width = percent + '%';
+                        progText.textContent = `Enviando parte ${i+1} de ${totalChunks}...`;
+                    }
+
+                    // Link final
+                    const shortLink = window.location.origin + window.location.pathname + '?id=' + cardId;
+                    document.getElementById('finalLink').value = shortLink;
+
+                } else {
+                    // Arquivo pequeno ou sem áudio, salva direto
+                    if (audioB64) cardData.a64 = audioB64;
+                    
+                    const docRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'cards'), cardData);
+                    const shortLink = window.location.origin + window.location.pathname + '?id=' + docRef.id;
+                    document.getElementById('finalLink').value = shortLink;
+                }
+
+                // Sucesso
+                progContainer.style.display = 'none';
+                document.getElementById('shareArea').style.display = 'block';
+                document.getElementById('shareArea').scrollIntoView({behavior: "smooth"});
+                window.showToast("Link Gerado com Sucesso! 🎉");
+
+            } catch (error) {
+                console.error("Erro:", error);
+                window.showToast("Erro ao gerar. Verifique sua conexão.");
+            } finally {
+                btn.textContent = "✨ GERAR CARTÃO AGORA";
+                btn.classList.remove('btn-loading');
+            }
+        }
+
+        window.loadCardData = async function(cardId) {
+            if (!isFirebaseReady) return;
+            try {
+                window.showToast("Abrindo cartão mágico...");
+                const docRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'cards', cardId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    applyDataToFields(data);
+                    
+                    // --- RECUPERAÇÃO DE ÁUDIO (CHUNKS) ---
+                    if (data.hasChunks) {
+                        window.showToast("Carregando música de alta qualidade...");
+                        const q = query(
+                            collection(db, 'artifacts', APP_ID, 'public', 'data', 'audio_chunks'),
+                            where("cardId", "==", cardId)
+                        );
+                        const querySnapshot = await getDocs(q);
+                        
+                        // Ordena e monta
+                        let chunks = [];
+                        querySnapshot.forEach((doc) => {
+                            chunks.push(doc.data());
+                        });
+                        chunks.sort((a, b) => a.index - b.index);
+                        
+                        const fullAudio = chunks.map(c => c.data).join('');
+                        const player = document.getElementById('realAudioElement');
+                        player.src = fullAudio;
+                        document.getElementById('cardAudioPlayer').style.display = 'flex';
+                        
+                    } else if(data.a64 || data.au) {
+                         const player = document.getElementById('realAudioElement');
+                         player.src = data.a64 || data.au;
+                         document.getElementById('cardAudioPlayer').style.display = 'flex';
+                    }
+
+                    window.updateCard();
+                    
+                } else {
+                    window.showToast("Cartão não encontrado 😢");
+                }
+            } catch (error) {
+                console.error("Erro load:", error);
+            }
+        }
+
+        function applyDataToFields(data) {
+            if(data.n) document.getElementById('inputNome').value = data.n;
+            if(data.e) document.getElementById('inputEvento').value = data.e;
+            if(data.d) document.getElementById('inputData').value = data.d;
+            if(data.m) document.getElementById('inputMsg').value = data.m;
+            if(data.p) document.getElementById('inputFotos').value = data.p;
+            if(data.bg) document.getElementById('inputBgCard').value = data.bg;
+            
+            if(data.f) document.getElementById('inputFonte').value = data.f;
+            if(data.ct) document.getElementById('colorTitle').value = data.ct;
+            if(data.cb) document.getElementById('colorBorder').value = data.cb;
+            if(data.cc) document.getElementById('colorBgCard').value = data.cc;
+            if(data.cp) document.getElementById('colorBgPage').value = data.cp;
+            
+            if(data.pm) document.getElementById('inputPisca').value = data.pm;
+            if(data.c1) document.getElementById('pisca1').value = data.c1;
+            if(data.c2) document.getElementById('pisca2').value = data.c2;
+            
+            if(data.au) document.getElementById('inputUrlAudio').value = data.au;
+        }
+    </script>
+
+    <script>
+        // --- LÓGICA COMUM (UI) ---
+        let mediaRecorder, audioChunks = [];
+
         window.onload = () => {
             setDefaultDate();
-            loadParams();
-            checkNews();
+            const p = new URLSearchParams(window.location.search);
+            if(p.has('id')) {
+                setupViewMode();
+                setTimeout(() => { if(window.loadCardData) window.loadCardData(p.get('id')); }, 800);
+            }
         };
 
-        // Define data padrão (Natal) se vazio
+        function setupViewMode() {
+            document.querySelector('.editor-section').style.display = 'none';
+            document.querySelector('.preview-section').style.flex = '1';
+            document.querySelector('.card-wrapper').style.maxWidth = '100%'; 
+            document.querySelector('.card-wrapper').style.height = '100vh';
+            document.querySelector('.card').style.minHeight = '90vh';
+        }
+
         function setDefaultDate() {
             const today = new Date();
             let targetYear = today.getFullYear();
@@ -633,171 +583,111 @@
             document.getElementById('inputData').value = `${targetYear}-12-25`;
         }
 
-        // --- NAVEGAÇÃO DE ABAS ---
-        function openTab(tabId) {
-            // Esconde todas
+        window.openTab = function(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            
-            // Mostra a selecionada
             document.getElementById(tabId).classList.add('active');
-            
-            // Ativa o botão correspondente
-            // Encontra o botão que chama essa função
             const btns = document.querySelectorAll('.tab-btn');
             btns.forEach(btn => {
                 if(btn.getAttribute('onclick').includes(tabId)) btn.classList.add('active');
             });
         }
 
-        // --- CONTROLE DE INPUT DE ÁUDIO ---
-        function showAudioInput(type) {
+        window.showAudioInput = function(type) {
             document.querySelectorAll('.audio-input-container').forEach(el => el.classList.remove('visible'));
             document.querySelectorAll('.audio-opt-btn').forEach(el => el.classList.remove('active'));
-            
-            if(type === 'file') {
-                document.getElementById('audioFileArea').classList.add('visible');
-                event.target.classList.add('active'); // highlight btn
-            } else if (type === 'mic') {
-                document.getElementById('audioMicArea').classList.add('visible');
-                event.target.classList.add('active');
-            } else {
-                document.getElementById('audioUrlArea').classList.add('visible');
-                event.target.classList.add('active');
-            }
+            if(type === 'file') document.getElementById('audioFileArea').classList.add('visible');
+            else if (type === 'mic') document.getElementById('audioMicArea').classList.add('visible');
+            else document.getElementById('audioUrlArea').classList.add('visible');
+            event.target.classList.add('active');
         }
 
-        // --- LÓGICA PRINCIPAL DE ATUALIZAÇÃO (PREVIEW) ---
-        function updateCard() {
-            // Coleta valores
+        window.playAudio = function() {
+            const player = document.getElementById('realAudioElement');
+            player.play().catch(e => showToast("Clique na página para permitir áudio"));
+        }
+
+        window.updateCard = function() {
             const nome = document.getElementById('inputNome').value || 'SEU NOME';
             const evento = document.getElementById('inputEvento').value || 'EVENTO';
             const msg = document.getElementById('inputMsg').value;
             const bgCard = document.getElementById('inputBgCard').value;
             
-            // Cores & Fontes
+            document.getElementById('cardUserName').textContent = nome.toUpperCase();
+            document.getElementById('cardTitle').textContent = evento.toUpperCase();
+            document.getElementById('cardMessage').textContent = msg;
+            
             const font = document.getElementById('inputFonte').value;
             const colTitle = document.getElementById('colorTitle').value;
             const colBorder = document.getElementById('colorBorder').value;
             const colBgCard = document.getElementById('colorBgCard').value;
             const colBgPage = document.getElementById('colorBgPage').value;
             
-            // Aplica no DOM
-            document.getElementById('cardUserName').textContent = nome.toUpperCase();
-            document.getElementById('cardTitle').textContent = evento.toUpperCase();
-            document.getElementById('cardMessage').textContent = msg;
-            
-            // Estilos CSS Dinâmicos
             const card = document.getElementById('liveCard');
             card.style.backgroundColor = colBgCard;
             card.style.borderBottomColor = colBorder;
-            document.body.style.backgroundColor = colBgPage; // Fundo da Página
+            document.body.style.backgroundColor = colBgPage;
             
             const titleEl = document.getElementById('cardTitle');
             titleEl.style.fontFamily = font;
             titleEl.style.color = colTitle;
 
-            if(bgCard) {
-                card.style.backgroundImage = `url('${bgCard}')`;
-            } else {
-                card.style.backgroundImage = 'none';
-            }
+            if(bgCard) card.style.backgroundImage = `url('${bgCard}')`;
+            else card.style.backgroundImage = 'none';
 
-            // Pisca-Pisca
             const piscaMode = document.getElementById('inputPisca').value;
             const c1 = document.getElementById('pisca1').value;
             const c2 = document.getElementById('pisca2').value;
-            
-            // Reseta classes
             titleEl.classList.remove('blinking-text');
             card.classList.remove('blinking-border');
-            
-            // Injeta CSS de Animação
-            document.getElementById('dynamicStyles').textContent = `
-                :root { --cor-pisca-1: ${c1}; --cor-pisca-2: ${c2}; }
-            `;
-            
+            document.getElementById('dynamicStyles').textContent = `:root { --cor-pisca-1: ${c1}; --cor-pisca-2: ${c2}; }`;
             if(piscaMode === 'titulo') titleEl.classList.add('blinking-text');
             if(piscaMode === 'borda') card.classList.add('blinking-border');
 
-            // Contagem
             updateCountdown();
-
-            // Áudio Check
-            const audioFile = document.getElementById('audioBase64Data').value;
-            const audioUrl = document.getElementById('inputUrlAudio').value;
-            if(audioFile || audioUrl) {
-                document.getElementById('cardAudioPlayer').style.display = 'flex';
-            } else {
-                document.getElementById('cardAudioPlayer').style.display = 'none';
-            }
-
-            // Fotos
             processPhotos();
         }
 
-        // --- CONTAGEM REGRESSIVA ---
         let countdownInterval;
         function updateCountdown() {
             const dateStr = document.getElementById('inputData').value;
             const box = document.getElementById('cardCountdown');
-            
             clearInterval(countdownInterval);
-            
             if(!dateStr) return;
-
             const targetDate = new Date(dateStr + "T00:00:00").getTime();
-
             const run = () => {
                 const now = new Date().getTime();
                 const diff = targetDate - now;
-
                 if (diff < 0) {
                     box.textContent = "🎉 O GRANDE DIA CHEGOU! 🎉";
                     clearInterval(countdownInterval);
                     return;
                 }
-
                 const d = Math.floor(diff / (1000 * 60 * 60 * 24));
                 const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const s = Math.floor((diff % (1000 * 60)) / 1000);
-
                 box.textContent = `${d}d ${h}h ${m}m ${s}s para o evento`;
             };
             run();
             countdownInterval = setInterval(run, 1000);
         }
 
-        // --- FOTOS / CARROSSEL ---
         let slideInterval;
-        function formatUrls() {
+        window.formatUrls = function() {
             let val = document.getElementById('inputFotos').value;
-            // Lógica simples para adicionar ;
-            if(val.includes('http') && !val.includes(';')) {
-               // Se user colar vários links com espaço, tenta arrumar
-               val = val.replace(/\shttp/g, '; http');
-            }
-            // Limpeza básica
+            if(val.includes('http') && !val.includes(';')) val = val.replace(/\shttp/g, '; http');
             document.getElementById('inputFotos').value = val;
         }
 
         function processPhotos() {
             const raw = document.getElementById('inputFotos').value;
             const container = document.getElementById('cardGallery');
-            
-            if(!raw.trim()) {
-                container.style.display = 'none';
-                return;
-            }
-            
+            if(!raw.trim()) { container.style.display = 'none'; return; }
             container.style.display = 'block';
             container.innerHTML = '';
             clearInterval(slideInterval);
-
             const urls = raw.split(';').map(u => u.trim()).filter(u => u.length > 5);
-            
-            // Converter links Google Drive/ImgBB (Versão Simplificada)
             const cleanUrls = urls.map(url => {
                 if(url.includes('drive.google.com')) {
                     const id = url.match(/d\/([^/]+)/) || url.match(/id=([^&]+)/);
@@ -805,19 +695,12 @@
                 }
                 return url;
             });
-
-            if(cleanUrls.length === 0) {
-                 container.style.display = 'none';
-                 return;
-            }
-
             cleanUrls.forEach((u, i) => {
                 const img = document.createElement('img');
                 img.src = u;
                 img.className = i === 0 ? 'photo-img active' : 'photo-img';
                 container.appendChild(img);
             });
-
             if(cleanUrls.length > 1) {
                 let idx = 0;
                 slideInterval = setInterval(() => {
@@ -829,34 +712,34 @@
             }
         }
 
-        // --- ÁUDIO (GRAVAÇÃO & UPLOAD) ---
-        function handleFileUpload(input) {
+        window.handleFileUpload = function(input) {
             const file = input.files[0];
             if(!file) return;
-            
+            // Limite aumentado para 6MB para suportar 6min
+            if(file.size > 6500000) { 
+                alert("Arquivo muito grande! O limite é aprox 6MB.");
+                input.value = "";
+                return;
+            }
             const reader = new FileReader();
             reader.onload = function(e) {
                 document.getElementById('audioBase64Data').value = e.target.result;
-                showToast("Áudio carregado com sucesso!");
+                showToast("Música carregada! 🎵");
                 updateCard();
             };
             reader.readAsDataURL(file);
         }
 
-        function startRec() {
+        window.startRec = function() {
             if (!navigator.mediaDevices) return showToast("Erro: Microfone não suportado.");
-            
-            navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
                 mediaRecorder.start();
-                
                 document.getElementById('btnRecStart').style.display = 'none';
                 document.getElementById('btnRecStop').disabled = false;
                 document.getElementById('recStatus').textContent = "Gravando... (Fale agora)";
                 document.getElementById('recStatus').style.color = "red";
-
                 mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
                 mediaRecorder.onstop = () => {
                     const blob = new Blob(audioChunks, { type: 'audio/mp3' });
@@ -871,7 +754,7 @@
             });
         }
 
-        function stopRec() {
+        window.stopRec = function() {
             if(mediaRecorder) mediaRecorder.stop();
             document.getElementById('btnRecStart').style.display = 'inline-flex';
             document.getElementById('btnRecStop').disabled = true;
@@ -879,143 +762,25 @@
             document.getElementById('recStatus').style.color = "green";
         }
 
-        // --- GERAÇÃO DE LINK ---
-        function generateLink() {
-            // Pega todos os dados
-            const params = new URLSearchParams();
-            params.set('n', document.getElementById('inputNome').value);
-            params.set('e', document.getElementById('inputEvento').value);
-            params.set('d', document.getElementById('inputData').value);
-            params.set('m', document.getElementById('inputMsg').value);
-            params.set('p', document.getElementById('inputFotos').value); // Photos
-            params.set('bg', document.getElementById('inputBgCard').value);
-            
-            // Estilos
-            params.set('f', document.getElementById('inputFonte').value);
-            params.set('ct', document.getElementById('colorTitle').value);
-            params.set('cb', document.getElementById('colorBorder').value);
-            params.set('cc', document.getElementById('colorBgCard').value);
-            params.set('cp', document.getElementById('colorBgPage').value);
-            
-            // Pisca
-            params.set('pm', document.getElementById('inputPisca').value);
-            params.set('c1', document.getElementById('pisca1').value);
-            params.set('c2', document.getElementById('pisca2').value);
-
-            // Áudio (Prioriza Base64, depois URL)
-            const b64 = document.getElementById('audioBase64Data').value;
-            if(b64) params.set('a64', b64);
-            else params.set('au', document.getElementById('inputUrlAudio').value);
-
-            const finalUrl = window.location.origin + window.location.pathname + '?' + params.toString();
-            
-            document.getElementById('finalLink').value = finalUrl;
-            document.getElementById('shareArea').style.display = 'block';
-            
-            // Scroll suave até área de share
-            document.getElementById('shareArea').scrollIntoView({behavior: "smooth"});
-            showToast("Link gerado com sucesso! 🎉");
-        }
-
-        // --- CARREGAR CARTÃO (VIEW MODE) ---
-        function loadParams() {
-            const p = new URLSearchParams(window.location.search);
-            if(!p.has('n')) return; // Sem parâmetros, modo edição normal
-
-            // Modo Visualização: Esconde Editor
-            document.querySelector('.editor-section').style.display = 'none';
-            document.querySelector('.preview-section').style.flex = '1';
-            document.querySelector('.card-wrapper').style.maxWidth = '100%'; // Ocupa tela toda
-            document.querySelector('.card-wrapper').style.height = '100vh'; // Altura total
-            document.querySelector('.card').style.minHeight = '90vh';
-            
-            // Preenche campos (mesmo escondidos, para lógica funcionar)
-            if(p.get('n')) document.getElementById('inputNome').value = p.get('n');
-            if(p.get('e')) document.getElementById('inputEvento').value = p.get('e');
-            if(p.get('d')) document.getElementById('inputData').value = p.get('d');
-            if(p.get('m')) document.getElementById('inputMsg').value = p.get('m');
-            if(p.get('p')) document.getElementById('inputFotos').value = p.get('p');
-            if(p.get('bg')) document.getElementById('inputBgCard').value = p.get('bg');
-
-            if(p.get('f')) document.getElementById('inputFonte').value = p.get('f');
-            if(p.get('ct')) document.getElementById('colorTitle').value = p.get('ct');
-            if(p.get('cb')) document.getElementById('colorBorder').value = p.get('cb');
-            if(p.get('cc')) document.getElementById('colorBgCard').value = p.get('cc');
-            if(p.get('cp')) document.getElementById('colorBgPage').value = p.get('cp');
-            
-            if(p.get('pm')) document.getElementById('inputPisca').value = p.get('pm');
-            if(p.get('c1')) document.getElementById('pisca1').value = p.get('c1');
-            if(p.get('c2')) document.getElementById('pisca2').value = p.get('c2');
-
-            if(p.get('a64')) document.getElementById('audioBase64Data').value = p.get('a64');
-            if(p.get('au')) document.getElementById('inputUrlAudio').value = p.get('au');
-
-            // Atualiza visual
-            updateCard();
-
-            // Auto-Play Audio
-            const audioB64 = p.get('a64');
-            const audioUrl = p.get('au');
-            const player = document.getElementById('realAudioElement');
-            
-            if(audioB64 || audioUrl) {
-                player.src = audioB64 || audioUrl;
-                // Tenta tocar (navegadores bloqueiam autoplay sem interação, então mostramos o botão)
-                document.getElementById('cardAudioPlayer').onclick = () => {
-                    player.play();
-                    showToast("Tocando áudio... 🎵");
-                };
-                showToast("Toque no ícone de som para ouvir! 🔊");
-            }
-        }
-
-        // --- COMPARTILHAR ---
-        function copyLink() {
+        window.copyLink = function() {
             const link = document.getElementById('finalLink');
             link.select();
-            link.setSelectionRange(0, 99999); /* Para mobile */
+            link.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(link.value);
             showToast("Link copiado!");
         }
-
-        function share(platform) {
+        window.share = function(platform) {
             const link = encodeURIComponent(document.getElementById('finalLink').value);
             const msg = encodeURIComponent(`Veja o cartão que fiz para você! ✨`);
-            
             if(platform === 'wa') window.open(`https://wa.me/?text=${msg}%20${link}`);
             if(platform === 'fb') window.open(`https://www.facebook.com/sharer/sharer.php?u=${link}`);
         }
-
-        // --- UI UTILS ---
-        function showToast(msg) {
+        window.showToast = function(msg) {
             const t = document.getElementById('toast');
             t.textContent = msg;
             t.style.display = 'block';
             setTimeout(() => { t.style.display = 'none'; }, 3000);
         }
-
-        // --- MODAL NOVIDADES ---
-        function checkNews() {
-            if(localStorage.getItem('newsVersion') == APP_VERSION) return;
-            
-            const modal = document.getElementById('newsModal');
-            modal.style.display = 'flex';
-            
-            let secs = 10;
-            const timer = setInterval(() => {
-                secs--;
-                document.getElementById('modalTimer').textContent = secs + 's';
-                if(secs <= 0) {
-                    clearInterval(timer);
-                    closeModal();
-                }
-            }, 1000);
-        }
-        function closeModal() {
-            document.getElementById('newsModal').style.display = 'none';
-            localStorage.setItem('newsVersion', APP_VERSION);
-        }
-
     </script>
 </body>
 </html>
