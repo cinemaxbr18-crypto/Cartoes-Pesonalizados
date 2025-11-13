@@ -134,7 +134,7 @@
         .audio-input-container { display: none; margin-top: 10px; padding: 15px; background: #f8f9fa; border-radius: 10px; }
         .audio-input-container.visible { display: block; }
 
-        /* Gravação */
+        /* Gravação (MANTIDO o CSS para não quebrar a estrutura) */
         .record-controls { display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 10px;}
         .rec-btn { width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
         .rec-start { background: #ff7675; color: white; }
@@ -159,7 +159,8 @@
         .toast-msg {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             background: #2d3436; color: white; padding: 12px 24px; border-radius: 30px;
-            font-size: 0.9rem; z-index: 3000; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            font-size: 0.9rem; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: none; /* Inicia escondido */
         }
 
         /* Barra de Progresso para Audio Grande */
@@ -329,8 +330,8 @@
                     </div>
 
                     <div class="help-box" style="background: #e8f6ef; border-color: #a3e4d7;">
-                        <strong>🔗 Link Curto e Áudio</strong>
-                        <p>O link final é extremamente curto (apenas um ID), o que garante o envio sem problemas em qualquer plataforma. Use apenas links diretos de áudio (MP3 ou WAV).</p>
+                        <strong>🔗 Link Funcional</strong>
+                        <p>O link gerado agora contém todos os dados no URL, garantindo que o cartão funcione em ambientes estáticos como o GitHub Pages.</p>
                     </div>
                 </div>
 
@@ -341,23 +342,23 @@
                         <p>Clique abaixo para criar seu link mágico.</p>
                     </div>
                     
-                    <!-- Barra de Progresso para Upload -->
+                    <!-- Barra de Progresso (Removida a utilidade, mas mantida a estrutura) -->
                     <div id="uploadProgress" class="progress-container">
                         <div id="uploadBar" class="progress-bar"></div>
-                        <div id="uploadText" style="text-align:center; font-size:0.8rem; margin-top:5px; color:#666;">Enviando áudio...</div>
+                        <div id="uploadText" style="text-align:center; font-size:0.8rem; margin-top:5px; color:#666;">Gerando link...</div>
                     </div>
 
                     <button class="action-btn btn-success" id="btnGenerate" onclick="saveAndGenerate()">✨ GERAR CARTÃO AGORA</button>
 
                     <div class="share-area" id="shareArea">
-                        <label>Seu Link Curto:</label>
+                        <label>Seu Link Gerado:</label>
                         <input type="text" class="styled-input" id="finalLink" readonly onclick="this.select()">
                         <div class="social-grid">
                             <button class="social-btn" style="background:#25D366;" onclick="share('wa')">WhatsApp</button>
                             <button class="social-btn" style="background:#1877F2;" onclick="share('fb')">Facebook</button>
-                            <button class="social-btn" style="background:#E1306C;" onclick="copyLink()">Instagram</button>
+                            <button class="social-btn" style="background:#E1306C;" onclick="copyLink()">Copiar</button>
                         </div>
-                        <button class="action-btn btn-primary" onclick="copyLink()" style="margin-top:10px;">Copiar Link</button>
+                        <button class="action-btn btn-primary" onclick="copyLink()" style="margin-top:10px;">Copiar Link Completo</button>
                     </div>
                 </div>
 
@@ -370,182 +371,103 @@
 
     <style id="dynamicStyles"></style>
 
-    <script type="module">
-        // IMPORTAÇÕES FIREBASE (MANTIDAS)
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-        let db, auth;
-        let isFirebaseReady = false;
-
-        // Inicialização SEGURA do Firebase
-        async function initFirebase() {
-            if (isFirebaseReady) return true;
-            
-            try {
-                const firebaseConfig = JSON.parse(window.__firebase_config || '{}');
-                if (!firebaseConfig.apiKey) throw new Error("Configuração ausente");
-
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                // Regra 3: Autenticação PRIMEIRO
-                if (window.__initial_auth_token) {
-                    await signInWithCustomToken(auth, window.__initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                
-                isFirebaseReady = true;
-                console.log("Firebase pronto e autenticado.");
-                return true;
-            } catch (e) {
-                console.error("Erro crítico Firebase:", e);
-                return false;
-            }
-        }
-
-        // Inicia silenciosamente ao carregar
-        initFirebase();
-
-        const APP_ID = typeof window.__app_id !== 'undefined' ? window.__app_id : 'default';
-
-        // MANTIDO: Função de salvar no Firestore (Link Curto Garantido)
-        window.saveAndGenerate = async function() {
-            const btn = document.getElementById('btnGenerate');
-            const progContainer = document.getElementById('uploadProgress');
-            
-            btn.textContent = "⏳ Conectando...";
-            btn.classList.add('btn-loading');
-            progContainer.style.display = 'none';
-
-            // Tenta garantir conexão antes de tudo
-            const connected = await initFirebase();
-            if (!connected || !auth.currentUser) {
-                window.showToast("Erro de conexão com o servidor. Tente novamente.");
-                btn.textContent = "✨ GERAR CARTÃO AGORA";
-                btn.classList.remove('btn-loading');
-                return;
-            }
-
-            btn.textContent = "⏳ Salvando...";
-            
-            let cardData = {
-                n: document.getElementById('inputNome').value,
-                e: document.getElementById('inputEvento').value,
-                d: document.getElementById('inputData').value,
-                m: document.getElementById('inputMsg').value,
-                p: document.getElementById('inputFotos').value,
-                bg: document.getElementById('inputBgCard').value,
-                f: document.getElementById('inputFonte').value,
-                ct: document.getElementById('colorTitle').value,
-                cb: document.getElementById('colorBorder').value,
-                cc: document.getElementById('colorBgCard').value,
-                cp: document.getElementById('colorBgPage').value,
-                pm: document.getElementById('inputPisca').value,
-                c1: document.getElementById('pisca1').value,
-                c2: document.getElementById('pisca2').value,
-                au: document.getElementById('inputUrlAudio').value,
-                autoplay: document.getElementById('inputAutoplayDelay').value,
-                timestamp: new Date(),
-                uid: auth.currentUser.uid 
-            };
-
-            try {
-                // Geração de link curto: Apenas o ID do documento é usado no URL
-                const docRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'cards'), cardData);
-                const shortLink = window.location.origin + window.location.pathname + '?id=' + docRef.id;
-                document.getElementById('finalLink').value = shortLink;
-
-                document.getElementById('shareArea').style.display = 'block';
-                document.getElementById('shareArea').scrollIntoView({behavior: "smooth"});
-                window.showToast("Link Gerado com Sucesso! 🎉");
-
-            } catch (error) {
-                console.error("Erro ao salvar:", error);
-                window.showToast("Erro ao gerar link. Verifique sua internet.");
-            } finally {
-                btn.textContent = "✨ GERAR CARTÃO AGORA";
-                btn.classList.remove('btn-loading');
-            }
-        }
-
-        // MANTIDO: Função de carregar dados 
-        window.loadCardData = async function(cardId) {
-            const connected = await initFirebase();
-            if (!connected) return;
-
-            try {
-                window.showToast("Abrindo cartão mágico...");
-                const docRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'cards', cardId);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    applyDataToFields(data);
-                    
-                    // Lógica de Áudio (Apenas URL)
-                    if(data.au) {
-                         const player = document.getElementById('realAudioElement');
-                         player.src = data.au;
-                         document.getElementById('cardAudioPlayer').style.display = 'flex';
-                    } else {
-                        document.getElementById('cardAudioPlayer').style.display = 'none';
-                    }
-
-                    window.updateCard();
-                    
-                } else {
-                    window.showToast("Cartão não encontrado 😢");
-                }
-            } catch (error) {
-                console.error("Erro load:", error);
-            }
-        }
-
-        function applyDataToFields(data) {
-            if(data.n) document.getElementById('inputNome').value = data.n;
-            if(data.e) document.getElementById('inputEvento').value = data.e;
-            if(data.d) document.getElementById('inputData').value = data.d;
-            if(data.m) document.getElementById('inputMsg').value = data.m;
-            if(data.p) document.getElementById('inputFotos').value = data.p;
-            if(data.bg) document.getElementById('inputBgCard').value = data.bg;
-            
-            if(data.f) document.getElementById('inputFonte').value = data.f;
-            if(data.ct) document.getElementById('colorTitle').value = data.ct;
-            if(data.cb) document.getElementById('colorBorder').value = data.cb;
-            if(data.cc) document.getElementById('colorBgCard').value = data.cc;
-            if(data.cp) document.getElementById('colorBgPage').value = data.cp;
-            
-            if(data.pm) document.getElementById('inputPisca').value = data.pm;
-            if(data.c1) document.getElementById('pisca1').value = data.c1;
-            if(data.c2) document.getElementById('pisca2').value = data.c2;
-            
-            if(data.au) document.getElementById('inputUrlAudio').value = data.au;
-            if(data.autoplay) document.getElementById('inputAutoplayDelay').value = data.autoplay;
-        }
-    </script>
+    <!-- REMOVIDO: O bloco <script type="module"> e toda a lógica de Firebase -->
 
     <script>
-        // --- LÓGICA COMUM (UI) ---
+        // --- FUNÇÕES DE UTILIDADE ---
         // Funções e variáveis de gravação/upload completamente REMOVIDAS ou esvaziadas
         let mediaRecorder = null, audioChunks = []; 
+        let countdownInterval;
+        let slideInterval;
 
         window.onload = () => {
             setDefaultDate();
-            const p = new URLSearchParams(window.location.search);
-            if(p.has('id')) {
-                setupViewMode();
-                // Pequeno delay para garantir que o módulo carregou as funções
-                setTimeout(() => { if(window.loadCardData) window.loadCardData(p.get('id')); }, 1000);
-            } else {
-                // Ativa a aba 'url' e chama updateCard para o carrossel/visualização
-                showAudioInput('url'); 
-                window.updateCard(); 
+            // Verifica se há dados no URL (Link Longo)
+            if (window.location.search) {
+                const params = new URLSearchParams(window.location.search);
+                if (params.has('n')) {
+                    setupViewMode();
+                    loadCardData(params);
+                    return;
+                }
             }
+            
+            // Modo Editor
+            showAudioInput('url'); 
+            window.updateCard(); 
         };
+        
+        // --- FUNÇÕES DE CARREGAMENTO E SALVAMENTO (Sem Firebase) ---
+
+        // Mapeia IDs de HTML para chaves curtas no URL
+        const fieldMap = {
+            'inputNome': 'n', 'inputEvento': 'e', 'inputData': 'd', 
+            'inputMsg': 'm', 'inputFotos': 'p', 'inputBgCard': 'bg',
+            'inputFonte': 'f', 'colorTitle': 'ct', 'colorBorder': 'cb',
+            'colorBgCard': 'cc', 'colorBgPage': 'cp', 'inputPisca': 'pm',
+            'pisca1': 'c1', 'pisca2': 'c2', 'inputUrlAudio': 'au',
+            'inputAutoplayDelay': 'ap'
+        };
+
+        window.saveAndGenerate = function() {
+            const btn = document.getElementById('btnGenerate');
+            btn.textContent = "⏳ Gerando...";
+            btn.classList.add('btn-loading');
+            
+            const params = new URLSearchParams();
+            
+            // Itera sobre todos os campos e adiciona ao URL
+            for (const id in fieldMap) {
+                const element = document.getElementById(id);
+                if (element && element.value) {
+                    // Codifica o valor para ser seguro no URL
+                    params.set(fieldMap[id], encodeURIComponent(element.value));
+                }
+            }
+            
+            // Constrói o URL Longo
+            const fullLink = window.location.origin + window.location.pathname + '?' + params.toString();
+            
+            document.getElementById('finalLink').value = fullLink;
+            document.getElementById('shareArea').style.display = 'block';
+            document.getElementById('shareArea').scrollIntoView({behavior: "smooth"});
+            window.showToast("Link Gerado com Sucesso! (AVISO: Link longo)");
+
+            btn.textContent = "✨ GERAR CARTÃO AGORA";
+            btn.classList.remove('btn-loading');
+        }
+
+        function loadCardData(params) {
+            window.showToast("Abrindo cartão mágico...");
+            
+            for (const id in fieldMap) {
+                const key = fieldMap[id];
+                if (params.has(key)) {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        // Decodifica e aplica o valor do URL ao campo
+                        element.value = decodeURIComponent(params.get(key));
+                    }
+                }
+            }
+            
+            // Atualiza o cartão com os dados carregados
+            window.updateCard();
+            
+            // Lógica de Áudio (Apenas URL)
+            const audioUrl = document.getElementById('inputUrlAudio').value;
+            const playerUI = document.getElementById('cardAudioPlayer');
+            const audioElement = document.getElementById('realAudioElement');
+            
+            if (audioUrl && audioUrl.length > 5) {
+                audioElement.src = audioUrl;
+                playerUI.style.display = 'flex';
+            } else {
+                playerUI.style.display = 'none';
+            }
+        }
+        
+        // --- FUNÇÕES AUXILIARES (MANTIDAS/AJUSTADAS) ---
 
         function setupViewMode() {
             document.querySelector('.editor-section').style.display = 'none';
@@ -572,19 +494,16 @@
             });
         }
 
-        // FUNÇÃO SIMPLIFICADA: window.showAudioInput (Agora só ativa a aba 'url')
         window.showAudioInput = function(type) {
             document.querySelectorAll('.audio-input-container').forEach(el => el.classList.remove('visible'));
             document.querySelectorAll('.audio-opt-btn').forEach(el => el.classList.remove('active'));
             
             document.getElementById('audioUrlArea').classList.add('visible');
             
-            // Ativa o botão correspondente ao link (único que resta)
             const urlButton = document.querySelector('.audio-options button');
             if (urlButton) urlButton.classList.add('active');
         }
 
-        // FUNÇÃO playAudio (MANTIDA para o player no preview)
         window.playAudio = function() {
             const player = document.getElementById('realAudioElement');
             if (player.src && player.src.length > 5) {
@@ -632,7 +551,7 @@
             if(piscaMode === 'borda') card.classList.add('blinking-border');
 
             updateCountdown();
-            processPhotos(); // Chama a função que agora controla o carrossel
+            processPhotos();
             
             // Atualiza o player de áudio
             const audioUrl = document.getElementById('inputUrlAudio').value;
@@ -648,7 +567,6 @@
             }
         }
 
-        let countdownInterval;
         function updateCountdown() {
             const dateStr = document.getElementById('inputData').value;
             const box = document.getElementById('cardCountdown');
@@ -673,85 +591,66 @@
             countdownInterval = setInterval(run, 1000);
         }
 
-        let slideInterval;
         window.formatUrls = function() {
             let val = document.getElementById('inputFotos').value;
             if(val.includes('http') && !val.includes(';')) val = val.replace(/\shttp/g, '; http');
             document.getElementById('inputFotos').value = val;
         }
 
-        // FUNÇÃO DE CARROSSEL OTIMIZADA E AUTOPLAY
         function processPhotos() {
             const raw = document.getElementById('inputFotos').value;
             const container = document.getElementById('cardGallery');
             const delayInput = document.getElementById('inputAutoplayDelay').value;
-            const autoplayDelay = Math.max(1000, parseInt(delayInput) || 3000); // Mínimo de 1s
+            const autoplayDelay = Math.max(1000, parseInt(delayInput) || 3000);
             
-            // Limpa o carrossel anterior e o intervalo
             container.style.display = 'none';
             container.innerHTML = '';
             clearInterval(slideInterval);
 
-            // Processa URLs
             const urls = raw.split(';').map(u => u.trim()).filter(u => u.length > 5);
             const cleanUrls = urls.map(url => {
                 if(url.includes('drive.google.com')) {
                     const id = url.match(/d\/([^/]+)/) || url.match(/id=([^&]+)/);
-                    // Retorna o link direto do Drive (formato compatível)
                     if(id) return `https://drive.google.com/uc?export=view&id=${id[1]}`;
                 }
                 return url;
             });
             
-            if(!cleanUrls.length) return; // Não faz nada se não houver URLs válidas
+            if(!cleanUrls.length) return;
 
             container.style.display = 'block';
             let currentIdx = 0;
 
-            // Cria e insere as imagens
             cleanUrls.forEach((u, i) => {
                 const img = document.createElement('img');
                 img.src = u;
-                // Adiciona um fallback de imagem para evitar telas brancas em caso de erro de URL
                 img.onerror = () => { img.src = `https://placehold.co/400x500/cccccc/333333?text=Erro+Foto+${i+1}`; img.style.objectFit = 'cover'; };
                 img.className = i === 0 ? 'photo-img active' : 'photo-img';
                 container.appendChild(img);
             });
 
-            // Lógica de Autoplay (Looping)
             if(cleanUrls.length > 1) {
                 slideInterval = setInterval(() => {
                     const imgs = document.querySelectorAll('#cardGallery .photo-img');
                     if (imgs.length === 0) return clearInterval(slideInterval);
 
                     imgs[currentIdx].classList.remove('active');
-                    currentIdx = (currentIdx + 1) % imgs.length; // Loop do índice
+                    currentIdx = (currentIdx + 1) % imgs.length;
                     imgs[currentIdx].classList.add('active');
                 }, autoplayDelay);
             }
         }
-        // FIM DA FUNÇÃO DE CARROSSEL OTIMIZADA
+        
+        // FUNÇÕES STUB DE ÁUDIO
+        window.handleFileUpload = function(input) { }
+        window.startRec = function() { }
+        window.stopRec = function() { }
 
-        // FUNÇÕES DE ÁUDIO/GRAVAÇÃO REMOVIDAS (conforme solicitado), mantidas como stubs
-        window.handleFileUpload = function(input) {
-            // NOP (No Operation)
-        }
-
-        window.startRec = function() {
-            // NOP
-        }
-
-        window.stopRec = function() {
-            // NOP
-        }
-
-        // FIM DAS FUNÇÕES STUB DE ÁUDIO
-
+        // MUDANÇA: Usando document.execCommand para compatibilidade com iFrames (embora aqui não seja o caso, é mais seguro)
         window.copyLink = function() {
             const link = document.getElementById('finalLink');
             link.select();
             link.setSelectionRange(0, 99999);
-            // Uso de execCommand como fallback seguro para iFrames
             try {
                 document.execCommand('copy');
                 window.showToast("Link copiado!");
@@ -766,7 +665,6 @@
             const nome = document.getElementById('inputNome').value || 'alguém especial';
             const evento = document.getElementById('inputEvento').value || 'um grande evento';
             
-            // Tenta formatar a data, se disponível
             let dataEvento = '';
             const dataInput = document.getElementById('inputData').value;
             if (dataInput) {
@@ -774,20 +672,18 @@
                     const dateObj = new Date(dataInput + "T00:00:00");
                     dataEvento = dateObj.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
                 } catch (e) {
-                    dataEvento = ''; // Caso a data seja inválida
+                    dataEvento = '';
                 }
             }
             
             const dataMsg = dataEvento ? ` em ${dataEvento}` : '';
             
-            // Mensagem personalizada
             const rawMsg = `🎉 Receba um cartão de ${nome.toUpperCase()} para ${evento.toUpperCase()}${dataMsg}! Clique para ver: `;
             const encodedMsg = encodeURIComponent(rawMsg);
 
-            if (document.getElementById('finalLink').value.includes('?id=')) {
+            if (document.getElementById('finalLink').value.includes('?')) {
                 if(platform === 'wa') window.open(`https://wa.me/?text=${encodedMsg}${link}`);
                 if(platform === 'fb') window.open(`https://www.facebook.com/sharer/sharer.php?quote=${encodedMsg}&u=${link}`);
-                // Note: Instagram doesn't support pre-filled text in sharer
             } else {
                 window.showToast("Primeiro gere o cartão para ter o link final!");
             }
